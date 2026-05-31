@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<!--
+  Mechanism Master · v0.2
+  Copyright (c) 2026 Şahin Yavuz · Tüm hakları saklıdır.
+  Prof. Dr. Şahin Yavuz · Dokuz Eylül Üniversitesi
+  Mühendislik Fakültesi · Makina Mühendisliği Bölümü
+  
+  All rights reserved. This software is proprietary.
+  Unauthorized reproduction, distribution, or modification is prohibited.
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mechanism Master · v0.2</title>
+
+  <meta name="description" content="Design four-bar linkages to trace target curves. A physics-based puzzle game built on real mechanical engineering kinematics, by Prof. Şahin Yavuz.">
+  <meta name="author" content="Şahin Yavuz">
+  <meta name="keywords" content="mechanism, puzzle, engineering, four-bar linkage, mechanical engineering, indie game, physics puzzle, kinematics">
+  <meta name="theme-color" content="#F4EFE6">
+
+  <meta property="og:title" content="Mechanism Master">
+  <meta property="og:description" content="A physics-based mechanism design puzzle. Design four-bar linkages whose coupler points trace target curves.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sahinyavuzz.github.io/mechanism-master/">
+  <meta property="og:site_name" content="Mechanism Master">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Mechanism Master">
+  <meta name="twitter:description" content="A physics-based mechanism design puzzle by Prof. Dr. Şahin Yavuz.">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='80' text-anchor='middle' x='50'%3E%E2%9A%99%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F4EFE6;
+      --paper-deep: #EBE4D6;
+      --paper-line: #D9D0BD;
+      --ink: #1C1815;
+      --ink-soft: #3C342C;
+      --ink-muted: #6B635A;
+      --ink-light: #A89E91;
+      --accent: #A02828;
+      --accent-soft: #8A2222;
+      --player: #1A3B6E;
+      --player-light: #4366A0;
+      --gold: #B58A2E;
+      --gold-light: #D4A84A;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { overflow-x: hidden; }
+
+    body {
+      background: var(--paper);
+      background-image:
+        linear-gradient(rgba(60,52,44,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(60,52,44,0.05) 1px, transparent 1px);
+      background-size: 28px 28px;
+      color: var(--ink);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 13px;
+      min-height: 100vh;
+      padding: 28px 24px;
+      line-height: 1.5;
+    }
+
+    .app { max-width: 1200px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1.5px solid var(--ink);
+      padding-bottom: 16px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--ink);
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+    .brand-glyph {
+      font-family: 'Fraunces', serif;
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .brand-text { line-height: 1.2; }
+    .brand-title {
+      font-family: 'Fraunces', serif;
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      line-height: 1;
+    }
+    .brand-subtitle {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--ink-muted);
+      margin-top: 6px;
+    }
+    .session-info {
+      text-align: right;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+    }
+    .session-info .em {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .stage {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .level-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+    .level-banner-title {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .level-banner-num {
+      font-family: 'Fraunces', serif;
+      font-size: 12px;
+      color: var(--ink-muted);
+      letter-spacing: 0.04em;
+      margin-right: 10px;
+    }
+    .level-banner-spec {
+      font-size: 10px;
+      color: var(--ink-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .canvas-wrap {
+      background: var(--paper);
+      border: 1.5px solid var(--ink);
+      position: relative;
+      aspect-ratio: 16 / 10;
+      min-height: 420px;
+      overflow: hidden;
+    }
+    .canvas-corners { position: absolute; inset: 0; pointer-events: none; }
+    .canvas-corners > span {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--ink-soft);
+    }
+    .canvas-corners > span:nth-child(1) { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+    .canvas-corners > span:nth-child(2) { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+    .canvas-corners > span:nth-child(3) { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+    .canvas-corners > span:nth-child(4) { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+    canvas { display: block; width: 100%; height: 100%; }
+
+    .meta-overlay {
+      position: absolute;
+      top: 16px;
+      right: 22px;
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      text-align: right;
+      line-height: 1.7;
+    }
+    .meta-overlay .em { color: var(--ink); font-weight: 500; }
+
+    .match-display {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: var(--paper);
+      padding: 9px 14px 9px 16px;
+      border: 1.5px solid var(--ink);
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .match-display .label { color: var(--ink-muted); }
+    .match-display .value {
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .match-display.win .value { color: var(--gold); }
+
+    .legend {
+      position: absolute;
+      bottom: 16px;
+      right: 22px;
+      display: flex;
+      gap: 14px;
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-swatch {
+      width: 14px;
+      height: 2px;
+      display: inline-block;
+    }
+    .legend-swatch.target {
+      background: repeating-linear-gradient(90deg, var(--accent) 0 4px, transparent 4px 7px);
+      height: 2px;
+    }
+    .legend-swatch.player { background: var(--player); }
+
+    .controls-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .panel-section {
+      border: 1.5px solid var(--ink);
+      padding: 14px 16px 16px;
+      background: var(--paper);
+      position: relative;
+    }
+    .panel-section.compact { padding: 12px 16px 14px; }
+
+    .section-label {
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--ink-muted);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--ink-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .section-label .ref {
+      color: var(--ink);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+    }
+    .level-btn {
+      background: transparent;
+      border: 1px solid var(--ink-light);
+      color: var(--ink-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 10px 0;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      letter-spacing: 0.04em;
+    }
+    .level-btn:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+      background: var(--paper-deep);
+    }
+    .level-btn.active {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .level-btn.won {
+      border-color: var(--gold);
+      background: var(--gold);
+      color: var(--paper);
+    }
+    .level-btn.won.active {
+      background: var(--gold);
+      border-color: var(--ink);
+      box-shadow: inset 0 0 0 1px var(--ink);
+    }
+
+    .lang-toggle {
+      display: inline-flex;
+      border: 1px solid var(--ink);
+      margin-bottom: 10px;
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      padding: 4px 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--ink-muted);
+      letter-spacing: 0.14em;
+      transition: all 0.12s ease;
+    }
+    .lang-btn.active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .lang-btn:hover:not(.active) {
+      background: var(--paper-deep);
+      color: var(--ink);
+    }
+
+    .slider-row { margin-bottom: 12px; }
+    .slider-row:last-child { margin-bottom: 0; }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 11px;
+      color: var(--ink-muted);
+      margin-bottom: 5px;
+      letter-spacing: 0.02em;
+    }
+    .slider-label .name { color: var(--ink-soft); }
+    .slider-value {
+      color: var(--ink);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 18px;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 2px;
+      background: var(--ink-light);
+    }
+    input[type="range"]::-moz-range-track {
+      height: 2px;
+      background: var(--ink-light);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: var(--ink);
+      border-radius: 50%;
+      cursor: pointer;
+      margin-top: -6px;
+      transition: transform 0.12s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      background: var(--ink);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.12s;
+    }
+    input[type="range"]::-moz-range-thumb:hover { transform: scale(1.25); }
+
+    .ground-info {
+      font-size: 11px;
+      color: var(--ink-muted);
+      padding: 8px 0;
+      text-align: center;
+      border: 1px dashed var(--ink-light);
+      margin-bottom: 4px;
+      letter-spacing: 0.04em;
+    }
+    .ground-info .em {
+      color: var(--ink);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .btn {
+      background: transparent;
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      padding: 11px 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: var(--ink-soft); color: var(--paper); border-color: var(--ink-soft); }
+    .btn-primary { background: var(--ink); color: var(--paper); }
+    .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+
+    .win-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(28, 24, 21, 0.55);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      animation: fadein 0.25s ease;
+    }
+    .win-modal.show { display: flex; }
+    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+    .win-card {
+      background: var(--paper);
+      background-image:
+        linear-gradient(rgba(60,52,44,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(60,52,44,0.05) 1px, transparent 1px);
+      background-size: 28px 28px;
+      border: 1.5px solid var(--ink);
+      padding: 36px 44px 32px;
+      max-width: 380px;
+      width: 90%;
+      text-align: center;
+      position: relative;
+      animation: pop 0.3s cubic-bezier(0.2, 1.5, 0.5, 1);
+    }
+    @keyframes pop { from { transform: scale(0.9); } to { transform: scale(1); } }
+    .win-card::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      border: 1px solid var(--ink-light);
+      pointer-events: none;
+    }
+    .win-stamp {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: var(--ink-muted);
+      margin-bottom: 14px;
+    }
+    .win-title {
+      font-family: 'Fraunces', serif;
+      font-size: 32px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+    .win-curve-name {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 26px;
+    }
+    .win-score {
+      font-family: 'Fraunces', serif;
+      font-size: 64px;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 6px;
+      letter-spacing: -0.04em;
+    }
+    .win-tier {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--ink-muted);
+      margin-bottom: 28px;
+    }
+
+    footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--ink-light);
+      display: flex;
+      justify-content: space-between;
+      font-size: 9.5px;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      .canvas-wrap { min-height: 340px; aspect-ratio: 4/3; }
+      header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .session-info { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand-mark">
+        <div class="brand-glyph">⚙</div>
+        <div class="brand-text">
+          <div class="brand-title">Mechanism Master</div>
+          <div class="brand-subtitle" data-i18n="subtitle">Four-bar mechanism puzzle · prototype 0.1</div>
+        </div>
+      </div>
+      <div class="session-info">
+        <div class="lang-toggle">
+          <button type="button" class="lang-btn" data-lang="tr">TR</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <div class="em" id="session-id">Session —</div>
+        <div data-i18n="design_credit">Designed by Ş. Yavuz</div>
+      </div>
+    </header>
+
+    <main>
+      <div class="stage">
+        <div class="level-banner">
+          <div>
+            <span class="level-banner-num" id="banner-num">No. 01</span>
+            <span class="level-banner-title" id="banner-title">—</span>
+          </div>
+          <div class="level-banner-spec" id="banner-spec">—</div>
+        </div>
+
+        <div class="canvas-wrap">
+          <div class="canvas-corners"><span></span><span></span><span></span><span></span></div>
+          <canvas id="game-canvas"></canvas>
+          <div class="meta-overlay">
+            <div><span class="em" id="grashof-tag">—</span></div>
+            <div id="frame-tag">—</div>
+          </div>
+          <div class="match-display" id="match-display">
+            <span class="label" data-i18n="match_label">Curve match</span>
+            <span class="value" id="match-pct">—</span>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><span class="legend-swatch target"></span><span data-i18n="legend_target">Target</span></span>
+            <span class="legend-item"><span class="legend-swatch player"></span><span data-i18n="legend_player">Trail</span></span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="controls-panel">
+        <div class="panel-section compact">
+          <div class="section-label"><span data-i18n="levels_section">Levels</span> <span class="ref" id="won-count">0 / 6</span></div>
+          <div class="level-grid" id="level-grid"></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-label"><span data-i18n="length_section">Link lengths</span> <span class="ref">r₂ r₃ r₄</span></div>
+          <div class="ground-info"><span data-i18n="ground_label">Ground r₁</span> · <span class="em" id="r1-val">—</span> <span data-i18n="ground_suffix">fixed</span></div>
+          <div id="length-sliders"></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-label"><span data-i18n="coupler_section">Coupler point</span> <span class="ref">P</span></div>
+          <div id="coupler-sliders"></div>
+        </div>
+
+        <div class="panel-section compact">
+          <div class="action-row">
+            <button class="btn" id="btn-reset" data-i18n="btn_reset">Clear Trail</button>
+            <button class="btn btn-primary" id="btn-check" data-i18n="btn_check">Check Match</button>
+          </div>
+          <div class="action-row" style="margin-top:8px">
+            <button class="btn" id="btn-screenshot" data-i18n="btn_screenshot" style="width:100%">Save Screenshot</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div data-i18n="footer_left">© 2026 Mechanism Master · Early prototype</div>
+      <div id="status-text">System ready</div>
+    </footer>
+  </div>
+
+  <div class="win-modal" id="win-modal">
+    <div class="win-card">
+      <div class="win-stamp" data-i18n="win_stamp">Level complete</div>
+      <div class="win-title" id="win-title">Excellent</div>
+      <div class="win-curve-name" id="win-curve-name">—</div>
+      <div class="win-score" id="win-score">—%</div>
+      <div class="win-tier" id="win-tier">—</div>
+      <div class="action-row">
+        <button class="btn" id="btn-replay" data-i18n="btn_replay">Retry</button>
+        <button class="btn btn-primary" id="btn-next" data-i18n="btn_next">Next Level</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const VERSION = '0.2';
+
+    const I18N = {
+      tr: {
+        subtitle: `Dört çubuk mekanizma puzzle'ı · prototip ${VERSION}`,
+        design_credit: "Tasarım · Ş. Yavuz",
+        session: "Oturum",
+        levels_section: "Seviyeler",
+        length_section: "Çubuk uzunlukları",
+        coupler_section: "Kuplör noktası",
+        ground_label: "Zemin r₁",
+        ground_suffix: "sabit",
+        slider_r2: "Krank r₂",
+        slider_r3: "Kuplör r₃",
+        slider_r4: "Sallayıcı r₄",
+        slider_Lp: "Nokta uzaklığı",
+        slider_alpha: "Nokta açısı",
+        btn_reset: "İzi Sil",
+        btn_check: "Uyumu Ölç",
+        btn_screenshot: "Görüntü Kaydet",
+        btn_replay: "Tekrar Dene",
+        btn_next: "Sıradaki Seviye",
+        match_label: "Eğri uyumu",
+        legend_target: "Hedef",
+        legend_player: "İz",
+        grashof_ok: "Grashof · krank tam döner",
+        grashof_no: "Grashof değil · krank salınır",
+        plate: "Levha",
+        no_prefix: "No.",
+        curve_suffix: "eğrisi",
+        point_target: "nokta hedef",
+        status_ready: "Sistem hazır ·",
+        levels_loaded: "seviye yüklendi",
+        footer_left: "© 2026 Mechanism Master · Erken prototip",
+        win_stamp: "Seviye tamamlandı",
+        win_title_great: "Olağanüstü",
+        win_title_good: "Mükemmel",
+        win_title_done: "Tamamlandı",
+        tier_gold: "Altın · mükemmel",
+        tier_silver: "Gümüş · çok iyi",
+        tier_bronze: "Bronz · iyi",
+        locked: "MEKANİZMA KİLİTLENDİ"
+      },
+      en: {
+        subtitle: `Four-bar mechanism puzzle · prototype ${VERSION}`,
+        design_credit: "Designed by Ş. Yavuz",
+        session: "Session",
+        levels_section: "Levels",
+        length_section: "Link lengths",
+        coupler_section: "Coupler point",
+        ground_label: "Ground r₁",
+        ground_suffix: "fixed",
+        slider_r2: "Crank r₂",
+        slider_r3: "Coupler r₃",
+        slider_r4: "Rocker r₄",
+        slider_Lp: "Point distance",
+        slider_alpha: "Point angle",
+        btn_reset: "Clear Trail",
+        btn_check: "Check Match",
+        btn_screenshot: "Save Screenshot",
+        btn_replay: "Retry",
+        btn_next: "Next Level",
+        match_label: "Curve match",
+        legend_target: "Target",
+        legend_player: "Trail",
+        grashof_ok: "Grashof · crank fully rotates",
+        grashof_no: "Non-Grashof · crank oscillates",
+        plate: "Plate",
+        no_prefix: "No.",
+        curve_suffix: "curve",
+        point_target: "target points",
+        status_ready: "System ready ·",
+        levels_loaded: "levels loaded",
+        footer_left: "© 2026 Mechanism Master · Early prototype",
+        win_stamp: "Level complete",
+        win_title_great: "Outstanding",
+        win_title_good: "Excellent",
+        win_title_done: "Complete",
+        tier_gold: "Gold · perfect",
+        tier_silver: "Silver · very good",
+        tier_bronze: "Bronze · good",
+        locked: "MECHANISM LOCKED"
+      }
+    };
+
+    const LEVEL_NAMES = {
+      'Daire':   { tr: 'Daire',   en: 'Circle' },
+      'Yumurta': { tr: 'Yumurta', en: 'Egg' },
+      'Sekiz':   { tr: 'Sekiz',   en: 'Figure 8' },
+      'Yay':     { tr: 'Yay',     en: 'Arc' },
+      'Fasulye': { tr: 'Fasulye', en: 'Bean' },
+      'Yengeç':  { tr: 'Yengeç',  en: 'Crab' }
+    };
+
+    let LANG = 'en';
+
+    function detectInitialLang() {
+      try {
+        const saved = localStorage.getItem('mm_lang');
+        if (saved === 'tr' || saved === 'en') return saved;
+      } catch (e) {}
+      const nav = (navigator.language || 'en').toLowerCase();
+      return nav.startsWith('tr') ? 'tr' : 'en';
+    }
+
+    function t(key) {
+      return (I18N[LANG] && I18N[LANG][key]) || I18N.en[key] || key;
+    }
+
+    function levelName(idx) {
+      const lvl = LEVELS[idx];
+      const map = LEVEL_NAMES[lvl.name];
+      return (map && map[LANG]) || lvl.name;
+    }
+
+    function applyLanguage(lang) {
+      LANG = lang;
+      try { localStorage.setItem('mm_lang', lang); } catch (e) {}
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const val = t(key);
+        if (val) el.textContent = val;
+      });
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+      });
+      refreshDynamicText();
+    }
+
+    function refreshDynamicText() {
+      if (typeof LEVELS === 'undefined' || !LEVELS.length) return;
+      const lvl = LEVELS[currentLevel];
+      if (!lvl) return;
+      document.getElementById('banner-num').textContent =
+        t('no_prefix') + ' ' + String(currentLevel + 1).padStart(2, '0');
+      document.getElementById('banner-title').textContent =
+        levelName(currentLevel) + ' ' + t('curve_suffix');
+      document.getElementById('banner-spec').textContent =
+        'r₁ ' + lvl.target.r1 + '  ·  ' + targetCurve.length + ' ' + t('point_target');
+      document.getElementById('frame-tag').textContent =
+        t('plate') + ' ' + String(currentLevel + 1).padStart(2, '0');
+      document.getElementById('status-text').textContent =
+        t('status_ready') + ' ' + LEVELS.length + ' ' + t('levels_loaded');
+      document.getElementById('grashof-tag').textContent =
+        checkGrashof() ? t('grashof_ok') : t('grashof_no');
+      // Re-build sliders with translated labels
+      const r2 = document.getElementById('slider-r2');
+      if (r2) buildSliders();
+      // Session prefix
+      const sessId = document.getElementById('session-id');
+      if (sessId && sessId.dataset.sessId) {
+        sessId.textContent = t('session') + ' ' + sessId.dataset.sessId;
+      }
+      updateLevelGrid();
+    }
+
+    // Seviye verisi · obfuscated to prevent trivial inspection.
+    // Not cryptographic security; legal protection is in LICENSE.
+    const _L = "W3sibmFtZSI6IkRhaXJlIiwidGFyZ2V0Ijp7InIxIjoyMDAsInIyIjo3MCwicjMiOjIyMCwicjQiOjIyMCwiTHAiOjExMCwiYWxwaGEiOjB9fSx7Im5hbWUiOiJZdW11cnRhIiwidGFyZ2V0Ijp7InIxIjoyMjAsInIyIjo2MCwicjMiOjIwMCwicjQiOjI0MCwiTHAiOjEzMCwiYWxwaGEiOjAuNX19LHsibmFtZSI6IlNla2l6IiwidGFyZ2V0Ijp7InIxIjoyNDAsInIyIjo5NSwicjMiOjIwMCwicjQiOjE4MCwiTHAiOjIxMCwiYWxwaGEiOjAuNTV9fSx7Im5hbWUiOiJZYXkiLCJ0YXJnZXQiOnsicjEiOjIwMCwicjIiOjUwLCJyMyI6MjQwLCJyNCI6MTgwLCJMcCI6MTUwLCJhbHBoYSI6MS4wfX0seyJuYW1lIjoiRmFzdWx5ZSIsInRhcmdldCI6eyJyMSI6MjIwLCJyMiI6ODAsInIzIjoxODAsInI0IjoyMjAsIkxwIjoxOTAsImFscGhhIjowLjh9fSx7Im5hbWUiOiJZZW5nZcOnIiwidGFyZ2V0Ijp7InIxIjoyNjAsInIyIjo3NSwicjMiOjIwMCwicjQiOjIyMCwiTHAiOjI0MCwiYWxwaGEiOi0wLjc1fX1d";
+    const LEVELS = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(_L), c => c.charCodeAt(0))));
+
+    let currentLevel = 0;
+    let won = new Set();
+    let params = { r1: 200, r2: 50, r3: 220, r4: 220, Lp: 80, alpha: 0 };
+    let theta2 = 0;
+    let direction = 1;
+    let trail = [];
+    let targetCurve = [];
+    let targetBounds = null;
+    let matchTimer = null;
+
+    function solve(t, p) {
+      p = p || params;
+      const Ax = p.r2 * Math.cos(t);
+      const Ay = p.r2 * Math.sin(t);
+      const dx = p.r1 - Ax;
+      const dy = -Ay;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist > p.r3 + p.r4 || dist < Math.abs(p.r3 - p.r4)) return null;
+      const a = (p.r3*p.r3 - p.r4*p.r4 + dist*dist) / (2*dist);
+      const h2 = p.r3*p.r3 - a*a;
+      if (h2 < 0) return null;
+      const h = Math.sqrt(h2);
+      const mx = Ax + (a/dist) * dx;
+      const my = Ay + (a/dist) * dy;
+      const Bx = mx - (h/dist) * dy;
+      const By = my + (h/dist) * dx;
+      const ABx = Bx - Ax, ABy = By - Ay;
+      const ABlen = Math.sqrt(ABx*ABx + ABy*ABy);
+      if (ABlen < 0.001) return null;
+      const ux = ABx/ABlen, uy = ABy/ABlen;
+      const c = Math.cos(p.alpha), s = Math.sin(p.alpha);
+      const Px = Ax + p.Lp * (ux*c - uy*s);
+      const Py = Ay + p.Lp * (ux*s + uy*c);
+      return { Ax, Ay, Bx, By, Px, Py };
+    }
+
+    function generateTargetCurve(target) {
+      const points = [];
+      const steps = 240;
+      for (let i = 0; i < steps; i++) {
+        const t = (i / steps) * Math.PI * 2;
+        const sol = solve(t, target);
+        if (sol) points.push({ x: sol.Px, y: sol.Py });
+      }
+      return points;
+    }
+
+    function computeBounds(pts) {
+      if (!pts.length) return null;
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (const p of pts) {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+      }
+      return { minX, maxX, minY, maxY };
+    }
+
+    function checkGrashof(p) {
+      p = p || params;
+      const ls = [p.r1, p.r2, p.r3, p.r4].sort((a,b) => a-b);
+      return ls[0] + ls[3] < ls[1] + ls[2];
+    }
+
+    function reseed() {
+      if (solve(theta2)) return true;
+      for (let d = 0.01; d < Math.PI*2; d += 0.02) {
+        if (solve(theta2 + d)) { theta2 += d; return true; }
+        if (solve(theta2 - d)) { theta2 -= d; return true; }
+      }
+      return false;
+    }
+
+    function computeMatch() {
+      if (trail.length < 80 || targetCurve.length < 80) return 0;
+      let sumT = 0;
+      for (const tp of targetCurve) {
+        let minD = Infinity;
+        for (const pp of trail) {
+          const dx = tp.x - pp.x, dy = tp.y - pp.y;
+          const d = dx*dx + dy*dy;
+          if (d < minD) minD = d;
+        }
+        sumT += Math.sqrt(minD);
+      }
+      const avgT = sumT / targetCurve.length;
+      const stride = Math.max(1, Math.floor(trail.length / 200));
+      let sumP = 0, countP = 0;
+      for (let i = 0; i < trail.length; i += stride) {
+        const pp = trail[i];
+        let minD = Infinity;
+        for (const tp of targetCurve) {
+          const dx = tp.x - pp.x, dy = tp.y - pp.y;
+          const d = dx*dx + dy*dy;
+          if (d < minD) minD = d;
+        }
+        sumP += Math.sqrt(minD);
+        countP++;
+      }
+      const avgP = sumP / countP;
+      const worst = Math.max(avgT, avgP);
+      const score = Math.max(0, 100 * (1 - worst / 45));
+      return Math.round(score);
+    }
+
+    function updateMatchDisplay(pct) {
+      const el = document.getElementById('match-pct');
+      const wrap = document.getElementById('match-display');
+      if (pct === null || pct === undefined) {
+        el.textContent = '—';
+        wrap.classList.remove('win');
+      } else {
+        el.textContent = pct + '%';
+        if (pct >= 70) wrap.classList.add('win');
+        else wrap.classList.remove('win');
+      }
+    }
+
+    function scheduleAutoMatch() {
+      if (matchTimer) clearTimeout(matchTimer);
+      matchTimer = setTimeout(() => {
+        const pct = computeMatch();
+        updateMatchDisplay(pct);
+        if (pct >= 70) triggerWin(pct);
+      }, 2200);
+    }
+
+    function triggerWin(pct) {
+      if (won.has(currentLevel)) return;
+      won.add(currentLevel);
+      document.getElementById('win-score').textContent = pct + '%';
+      document.getElementById('win-curve-name').textContent = levelName(currentLevel) + ' ' + t('curve_suffix');
+      let tier = t('tier_bronze');
+      let title = t('win_title_done');
+      if (pct >= 90) { tier = t('tier_gold'); title = t('win_title_great'); }
+      else if (pct >= 80) { tier = t('tier_silver'); title = t('win_title_good'); }
+      document.getElementById('win-tier').textContent = tier;
+      document.getElementById('win-title').textContent = title;
+      document.getElementById('win-modal').classList.add('show');
+      updateLevelGrid();
+      updateWonCount();
+    }
+
+    function loadLevel(idx) {
+      currentLevel = idx;
+      const lvl = LEVELS[idx];
+      targetCurve = generateTargetCurve(lvl.target);
+      targetBounds = computeBounds(targetCurve);
+      params.r1 = lvl.target.r1;
+      params.r2 = 50;
+      params.r3 = 220;
+      params.r4 = 220;
+      params.Lp = 100;
+      params.alpha = 0;
+      theta2 = 0;
+      direction = 1;
+      trail = [];
+      reseed();
+      updateMatchDisplay(null);
+      syncSliderUI();
+      updateLevelGrid();
+      document.getElementById('banner-num').textContent = t('no_prefix') + ' ' + String(idx + 1).padStart(2, '0');
+      document.getElementById('banner-title').textContent = levelName(idx) + ' ' + t('curve_suffix');
+      document.getElementById('banner-spec').textContent =
+        'r₁ ' + lvl.target.r1 + '  ·  ' + targetCurve.length + ' ' + t('point_target');
+      document.getElementById('r1-val').textContent = lvl.target.r1;
+      document.getElementById('frame-tag').textContent = t('plate') + ' ' + String(idx + 1).padStart(2, '0');
+    }
+
+    function updateWonCount() {
+      document.getElementById('won-count').textContent = won.size + ' / ' + LEVELS.length;
+    }
+
+    function updateLevelGrid() {
+      const grid = document.getElementById('level-grid');
+      grid.innerHTML = '';
+      LEVELS.forEach((l, i) => {
+        const btn = document.createElement('button');
+        let cls = 'level-btn';
+        if (i === currentLevel) cls += ' active';
+        if (won.has(i)) cls += ' won';
+        btn.className = cls;
+        btn.textContent = String(i + 1).padStart(2, '0');
+        btn.title = levelName(i);
+        btn.addEventListener('click', () => loadLevel(i));
+        grid.appendChild(btn);
+      });
+    }
+
+    const SLIDER_SPECS = {
+      length: [
+        { key: 'r2', labelKey: 'slider_r2', min: 20,  max: 130, step: 1 },
+        { key: 'r3', labelKey: 'slider_r3', min: 100, max: 300, step: 1 },
+        { key: 'r4', labelKey: 'slider_r4', min: 100, max: 300, step: 1 }
+      ],
+      coupler: [
+        { key: 'Lp',    labelKey: 'slider_Lp',    min: 0,   max: 280, step: 1 },
+        { key: 'alpha', labelKey: 'slider_alpha', min: -90, max: 90,  step: 1, scale: Math.PI/180, suffix: '°' }
+      ]
+    };
+
+    function buildSliders() {
+      const map = { length: 'length-sliders', coupler: 'coupler-sliders' };
+      for (const group of Object.keys(SLIDER_SPECS)) {
+        const parent = document.getElementById(map[group]);
+        parent.innerHTML = '';
+        SLIDER_SPECS[group].forEach(spec => {
+          const row = document.createElement('div');
+          row.className = 'slider-row';
+          row.innerHTML =
+            '<div class="slider-label">' +
+              '<span class="name">' + t(spec.labelKey) + '</span>' +
+              '<span class="slider-value" id="val-' + spec.key + '">—</span>' +
+            '</div>' +
+            '<input type="range" id="slider-' + spec.key + '" ' +
+              'min="' + spec.min + '" max="' + spec.max + '" step="' + spec.step + '">';
+          parent.appendChild(row);
+          const slider = document.getElementById('slider-' + spec.key);
+          const valEl = document.getElementById('val-' + spec.key);
+          slider.addEventListener('input', () => {
+            const v = parseFloat(slider.value);
+            const scale = spec.scale || 1;
+            params[spec.key] = v * scale;
+            valEl.textContent = Math.round(v) + (spec.suffix || '');
+            trail = [];
+            reseed();
+            updateMatchDisplay(null);
+            scheduleAutoMatch();
+          });
+        });
+      }
+      syncSliderUI();
+    }
+
+    function syncSliderUI() {
+      for (const group of Object.keys(SLIDER_SPECS)) {
+        SLIDER_SPECS[group].forEach(spec => {
+          const slider = document.getElementById('slider-' + spec.key);
+          const valEl = document.getElementById('val-' + spec.key);
+          const scale = spec.scale || 1;
+          const displayVal = params[spec.key] / scale;
+          slider.value = displayVal;
+          valEl.textContent = Math.round(displayVal) + (spec.suffix || '');
+        });
+      }
+    }
+
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function drawHatching(x1, x2, y) {
+      ctx.lineWidth = 0.8;
+      for (let x = x1; x < x2; x += 9) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 7, y + 10);
+        ctx.stroke();
+      }
+    }
+
+    function draw() {
+      const rect = canvas.getBoundingClientRect();
+      const W = rect.width, H = rect.height;
+      ctx.clearRect(0, 0, W, H);
+
+      ctx.strokeStyle = 'rgba(28,24,21,0.05)';
+      ctx.lineWidth = 1;
+      const gridSize = 22;
+      for (let x = (W/2) % gridSize; x < W; x += gridSize) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = (H/2) % gridSize; y < H; y += gridSize) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      const cx = W/2 - params.r1/2;
+      const cy = H * 0.62;
+
+      if (targetCurve.length > 1) {
+        ctx.strokeStyle = '#A02828';
+        ctx.lineWidth = 1.8;
+        ctx.setLineDash([6, 4]);
+        ctx.globalAlpha = 0.75;
+        ctx.beginPath();
+        ctx.moveTo(cx + targetCurve[0].x, cy - targetCurve[0].y);
+        for (let i = 1; i < targetCurve.length; i++) {
+          ctx.lineTo(cx + targetCurve[i].x, cy - targetCurve[i].y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+      }
+
+      ctx.strokeStyle = '#1C1815';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(cx - 34, cy);
+      ctx.lineTo(cx + params.r1 + 34, cy);
+      ctx.stroke();
+      ctx.strokeStyle = '#3C342C';
+      drawHatching(cx - 30, cx + params.r1 + 34, cy);
+
+      const sol = solve(theta2);
+      if (sol) {
+        trail.push({ x: sol.Px, y: sol.Py });
+        if (trail.length > 700) trail.shift();
+
+        if (trail.length > 1) {
+          ctx.strokeStyle = '#1A3B6E';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx + trail[0].x, cy - trail[0].y);
+          for (let i = 1; i < trail.length; i++) {
+            ctx.lineTo(cx + trail[i].x, cy - trail[i].y);
+          }
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = '#1C1815';
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + sol.Ax, cy - sol.Ay);
+        ctx.stroke();
+
+        ctx.lineWidth = 0.9;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(cx + sol.Ax, cy - sol.Ay);
+        ctx.lineTo(cx + sol.Px, cy - sol.Py);
+        ctx.lineTo(cx + sol.Bx, cy - sol.By);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.moveTo(cx + sol.Ax, cy - sol.Ay);
+        ctx.lineTo(cx + sol.Bx, cy - sol.By);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cx + sol.Bx, cy - sol.By);
+        ctx.lineTo(cx + params.r1, cy);
+        ctx.stroke();
+
+        ctx.fillStyle = '#1C1815';
+        const joints = [
+          [cx, cy], [cx + params.r1, cy],
+          [cx + sol.Ax, cy - sol.Ay], [cx + sol.Bx, cy - sol.By]
+        ];
+        for (const p of joints) {
+          ctx.beginPath();
+          ctx.arc(p[0], p[1], 4.5, 0, Math.PI*2);
+          ctx.fill();
+          ctx.fillStyle = '#F4EFE6';
+          ctx.beginPath();
+          ctx.arc(p[0], p[1], 1.5, 0, Math.PI*2);
+          ctx.fill();
+          ctx.fillStyle = '#1C1815';
+        }
+
+        ctx.fillStyle = '#1A3B6E';
+        ctx.strokeStyle = '#F4EFE6';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(cx + sol.Px, cy - sol.Py, 6.5, 0, Math.PI*2);
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = '#A02828';
+        ctx.font = "11px 'JetBrains Mono', monospace";
+        ctx.textAlign = 'center';
+        ctx.fillText(t('locked'), W/2, cy - 30);
+      }
+
+      const grashof = checkGrashof();
+      document.getElementById('grashof-tag').textContent =
+        grashof ? t('grashof_ok') : t('grashof_no');
+    }
+
+    let lastTime = performance.now();
+    function animate(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+      const v = 1.3 * direction;
+      const newTheta = theta2 + v * dt;
+      if (solve(newTheta)) {
+        theta2 = newTheta;
+        if (theta2 > Math.PI*2) theta2 -= Math.PI*2;
+        if (theta2 < 0) theta2 += Math.PI*2;
+      } else {
+        direction = -direction;
+      }
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    function init() {
+      document.title = `Mechanism Master · v${VERSION}`;
+
+      const sessionShort = 'MM-' + Date.now().toString(36).toUpperCase().slice(-5);
+      const sessIdEl = document.getElementById('session-id');
+      sessIdEl.dataset.sessId = sessionShort;
+
+      // Initialize language before any text rendering
+      LANG = detectInitialLang();
+      document.documentElement.lang = LANG;
+      // Apply static translations immediately
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const val = t(key);
+        if (val) el.textContent = val;
+      });
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-lang') === LANG);
+        b.addEventListener('click', () => applyLanguage(b.getAttribute('data-lang')));
+      });
+      sessIdEl.textContent = t('session') + ' ' + sessionShort;
+
+      resizeCanvas();
+      window.addEventListener('resize', () => { resizeCanvas(); });
+
+      buildSliders();
+      updateWonCount();
+      loadLevel(0);
+
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        trail = [];
+        updateMatchDisplay(null);
+      });
+      document.getElementById('btn-check').addEventListener('click', () => {
+        const pct = computeMatch();
+        updateMatchDisplay(pct);
+        if (pct >= 70) triggerWin(pct);
+      });
+      document.getElementById('btn-replay').addEventListener('click', () => {
+        document.getElementById('win-modal').classList.remove('show');
+        trail = [];
+        updateMatchDisplay(null);
+      });
+      document.getElementById('btn-next').addEventListener('click', () => {
+        document.getElementById('win-modal').classList.remove('show');
+        const next = (currentLevel + 1) % LEVELS.length;
+        loadLevel(next);
+      });
+
+      document.getElementById('btn-screenshot').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.download = `mechanism-master-level-${currentLevel + 1}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+
+      document.getElementById('status-text').textContent =
+        t('status_ready') + ' ' + LEVELS.length + ' ' + t('levels_loaded');
+      requestAnimationFrame(animate);
+    }
+
+    init();
+  </script>
+</body>
+</html>
