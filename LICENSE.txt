@@ -1,0 +1,88 @@
+MECHANISM MASTER · PROPRIETARY LICENSE
+========================================
+
+Copyright (c) 2026 Şahin Yavuz
+All rights reserved.
+
+Prof. Dr. Şahin Yavuz
+Dokuz Eylül University, Faculty of Engineering
+Department of Mechanical Engineering
+İzmir, Türkiye
+
+
+TERMS
+-----
+
+This software, including all source code, assets, design, level data, 
+documentation, and related materials (collectively, "the Software"), is the 
+exclusive property of Şahin Yavuz and is protected by copyright laws and 
+international copyright treaties, as well as other intellectual property 
+laws and treaties.
+
+THE SOFTWARE IS LICENSED, NOT SOLD. The copyright holder retains all 
+rights, title, and interest in and to the Software.
+
+
+PERMITTED USE
+-------------
+
+You are granted a limited, non-exclusive, non-transferable, revocable 
+license to:
+
+  1. Access and play the Software in its hosted form for personal,
+     non-commercial entertainment purposes only.
+
+
+PROHIBITED ACTIONS
+------------------
+
+Without prior written permission from the copyright holder, you may NOT:
+
+  1. Copy, reproduce, distribute, or republish the Software or any 
+     portion thereof, in any form or by any means.
+
+  2. Modify, adapt, translate, reverse-engineer, decompile, or create 
+     derivative works based on the Software.
+
+  3. Use the Software, or any portion of its code, design, mechanics, 
+     or assets, for any commercial purpose.
+
+  4. Remove, alter, or obscure any copyright notice, trademark, or 
+     proprietary legend appearing in the Software.
+
+  5. Sublicense, sell, rent, lease, transfer, or assign the Software 
+     to any third party.
+
+  6. Use the Software, its concepts, or its implementation as the basis 
+     for a competing product or service.
+
+
+GAME DESIGN, MECHANICS, AND CONTENT
+-----------------------------------
+
+The game design, puzzle mechanics, level designs, mathematical formulations, 
+visual identity, brand name "Mechanism Master", and overall presentation are 
+the original creative work of Şahin Yavuz and are protected as such.
+
+
+NO WARRANTY
+-----------
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+
+CONTACT
+-------
+
+For licensing inquiries, partnership opportunities, or permission requests:
+GitHub: https://github.com/sahinyavuzz
+
+
+This license shall be governed by and construed in accordance with the laws 
+of the Republic of Türkiye. Any disputes arising under or in connection with 
+this license shall be subject to the exclusive jurisdiction of the courts 
+of İzmir, Türkiye.
+
+End of License.
