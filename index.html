@@ -1391,9 +1391,16 @@
       }
 
       document.getElementById('btn-screenshot').addEventListener('click', () => {
+        const offscreen = document.createElement('canvas');
+        offscreen.width = canvas.width;
+        offscreen.height = canvas.height;
+        const octx = offscreen.getContext('2d');
+        octx.fillStyle = '#F4EFE6';
+        octx.fillRect(0, 0, offscreen.width, offscreen.height);
+        octx.drawImage(canvas, 0, 0);
         const link = document.createElement('a');
         link.download = `mechanism-master-level-${currentLevel + 1}.png`;
-        link.href = canvas.toDataURL('image/png');
+        link.href = offscreen.toDataURL('image/png');
         link.click();
       });
 
