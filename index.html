@@ -284,7 +284,7 @@
 
     .level-grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 4px;
     }
     .level-btn {
@@ -835,12 +835,21 @@
     };
 
     const LEVEL_NAMES = {
-      'Daire':   { tr: 'Daire',   en: 'Circle' },
-      'Yumurta': { tr: 'Yumurta', en: 'Egg' },
-      'Sekiz':   { tr: 'Sekiz',   en: 'Figure 8' },
-      'Yay':     { tr: 'Yay',     en: 'Arc' },
-      'Fasulye': { tr: 'Fasulye', en: 'Bean' },
-      'Yengeç':  { tr: 'Yengeç',  en: 'Crab' }
+      'Daire':          { tr: 'Daire',          en: 'Circle' },
+      'Yumurta':        { tr: 'Yumurta',        en: 'Egg' },
+      'Sekiz':          { tr: 'Sekiz',          en: 'Figure 8' },
+      'Yay':            { tr: 'Yay',            en: 'Arc' },
+      'Fasulye':        { tr: 'Fasulye',        en: 'Bean' },
+      'Yengeç':         { tr: 'Yengeç',         en: 'Crab' },
+      'Elips':          { tr: 'Elips',          en: 'Ellipse' },
+      'Çiçek':          { tr: 'Çiçek',          en: 'Flower' },
+      'Kalp':           { tr: 'Kalp',           en: 'Heart' },
+      'Damla':          { tr: 'Damla',          en: 'Teardrop' },
+      'Köpekbalığı':    { tr: 'Köpekbalığı',    en: 'Shark' },
+      'Yaprak':         { tr: 'Yaprak',         en: 'Leaf' },
+      'Dümen':          { tr: 'Dümen',          en: 'Helm' },
+      'Hilal':          { tr: 'Hilal',          en: 'Crescent' },
+      'Kelebek':        { tr: 'Kelebek',        en: 'Butterfly' }
     };
 
     let LANG = 'en';
@@ -908,7 +917,7 @@
 
     // Seviye verisi · obfuscated to prevent trivial inspection.
     // Not cryptographic security; legal protection is in LICENSE.
-    const _L = "W3sibmFtZSI6IkRhaXJlIiwidGFyZ2V0Ijp7InIxIjoyMDAsInIyIjo3MCwicjMiOjIyMCwicjQiOjIyMCwiTHAiOjExMCwiYWxwaGEiOjB9fSx7Im5hbWUiOiJZdW11cnRhIiwidGFyZ2V0Ijp7InIxIjoyMjAsInIyIjo2MCwicjMiOjIwMCwicjQiOjI0MCwiTHAiOjEzMCwiYWxwaGEiOjAuNX19LHsibmFtZSI6IlNla2l6IiwidGFyZ2V0Ijp7InIxIjoyNDAsInIyIjo5NSwicjMiOjIwMCwicjQiOjE4MCwiTHAiOjIxMCwiYWxwaGEiOjAuNTV9fSx7Im5hbWUiOiJZYXkiLCJ0YXJnZXQiOnsicjEiOjIwMCwicjIiOjUwLCJyMyI6MjQwLCJyNCI6MTgwLCJMcCI6MTUwLCJhbHBoYSI6MS4wfX0seyJuYW1lIjoiRmFzdWx5ZSIsInRhcmdldCI6eyJyMSI6MjIwLCJyMiI6ODAsInIzIjoxODAsInI0IjoyMjAsIkxwIjoxOTAsImFscGhhIjowLjh9fSx7Im5hbWUiOiJZZW5nZcOnIiwidGFyZ2V0Ijp7InIxIjoyNjAsInIyIjo3NSwicjMiOjIwMCwicjQiOjIyMCwiTHAiOjI0MCwiYWxwaGEiOi0wLjc1fX1d";
+    const _L = "W3sibmFtZSI6IkRhaXJlIiwidGFyZ2V0Ijp7InIxIjoyMDAsInIyIjo3MCwicjMiOjIyMCwicjQiOjIyMCwiTHAiOjExMCwiYWxwaGEiOjB9fSx7Im5hbWUiOiJZdW11cnRhIiwidGFyZ2V0Ijp7InIxIjoyMjAsInIyIjo2MCwicjMiOjIwMCwicjQiOjI0MCwiTHAiOjEzMCwiYWxwaGEiOjAuNX19LHsibmFtZSI6IlNla2l6IiwidGFyZ2V0Ijp7InIxIjoyNDAsInIyIjo5NSwicjMiOjIwMCwicjQiOjE4MCwiTHAiOjIxMCwiYWxwaGEiOjAuNTV9fSx7Im5hbWUiOiJZYXkiLCJ0YXJnZXQiOnsicjEiOjIwMCwicjIiOjUwLCJyMyI6MjQwLCJyNCI6MTgwLCJMcCI6MTUwLCJhbHBoYSI6MX19LHsibmFtZSI6IkZhc3VseWUiLCJ0YXJnZXQiOnsicjEiOjIyMCwicjIiOjgwLCJyMyI6MTgwLCJyNCI6MjIwLCJMcCI6MTkwLCJhbHBoYSI6MC44fX0seyJuYW1lIjoiWWVuZ2XDpyIsInRhcmdldCI6eyJyMSI6MjYwLCJyMiI6NzUsInIzIjoyMDAsInI0IjoyMjAsIkxwIjoyNDAsImFscGhhIjotMC43NX19LHsibmFtZSI6IkVsaXBzIiwidGFyZ2V0Ijp7InIxIjoyMDAsInIyIjo4MCwicjMiOjI0MCwicjQiOjE4MCwiTHAiOjkwLCJhbHBoYSI6MS4zfX0seyJuYW1lIjoiw4dpw6dlayIsInRhcmdldCI6eyJyMSI6MjIwLCJyMiI6OTAsInIzIjoxODAsInI0IjoyMjAsIkxwIjoyMzAsImFscGhhIjowLjV9fSx7Im5hbWUiOiJLYWxwIiwidGFyZ2V0Ijp7InIxIjoyMzAsInIyIjo4NSwicjMiOjE2NSwicjQiOjIxNSwiTHAiOjE5NSwiYWxwaGEiOi0wLjZ9fSx7Im5hbWUiOiJEYW1sYSIsInRhcmdldCI6eyJyMSI6MjEwLCJyMiI6NzAsInIzIjoyMzAsInI0IjoxOTAsIkxwIjoxNjAsImFscGhhIjowLjN9fSx7Im5hbWUiOiJLw7ZwZWtiYWzEscSfxLEiLCJ0YXJnZXQiOnsicjEiOjI2MCwicjIiOjcwLCJyMyI6MjM1LCJyNCI6MTkwLCJMcCI6MjIwLCJhbHBoYSI6LTAuOX19LHsibmFtZSI6IllhcHJhayIsInRhcmdldCI6eyJyMSI6MjEwLCJyMiI6NjUsInIzIjoyMDUsInI0IjoxOTUsIkxwIjoxNzAsImFscGhhIjoxLjF9fSx7Im5hbWUiOiJEw7xtZW4iLCJ0YXJnZXQiOnsicjEiOjI1MCwicjIiOjEwNSwicjMiOjE5MCwicjQiOjE4MCwiTHAiOjIxNSwiYWxwaGEiOjAuNzV9fSx7Im5hbWUiOiJIaWxhbCIsInRhcmdldCI6eyJyMSI6MjAwLCJyMiI6NTUsInIzIjoyNTUsInI0IjoxODUsIkxwIjoxNDAsImFscGhhIjotMS4xfX0seyJuYW1lIjoiS2VsZWJlayIsInRhcmdldCI6eyJyMSI6MjUwLCJyMiI6MTIwLCJyMyI6MjAwLCJyNCI6MTgwLCJMcCI6MjQwLCJhbHBoYSI6MC4yfX1d";
     const LEVELS = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(_L), c => c.charCodeAt(0))));
 
     let currentLevel = 0;
