@@ -552,7 +552,6 @@
           <button type="button" class="lang-btn" data-lang="tr">TR</button>
           <button type="button" class="lang-btn" data-lang="en">EN</button>
         </div>
-        <div class="em" id="session-id">Session —</div>
         <div data-i18n="design_credit">Designed by Ş. Yavuz</div>
       </div>
     </header>
@@ -784,11 +783,6 @@
       // Re-build sliders with translated labels
       const r2 = document.getElementById('slider-r2');
       if (r2) buildSliders();
-      // Session prefix
-      const sessId = document.getElementById('session-id');
-      if (sessId && sessId.dataset.sessId) {
-        sessId.textContent = t('session') + ' ' + sessId.dataset.sessId;
-      }
       updateLevelGrid();
     }
 
@@ -1208,10 +1202,6 @@
     function init() {
       document.title = `Mechanism Master · v${VERSION}`;
 
-      const sessionShort = 'MM-' + Date.now().toString(36).toUpperCase().slice(-5);
-      const sessIdEl = document.getElementById('session-id');
-      sessIdEl.dataset.sessId = sessionShort;
-
       // Initialize language before any text rendering
       LANG = detectInitialLang();
       document.documentElement.lang = LANG;
@@ -1225,8 +1215,6 @@
         b.classList.toggle('active', b.getAttribute('data-lang') === LANG);
         b.addEventListener('click', () => applyLanguage(b.getAttribute('data-lang')));
       });
-      sessIdEl.textContent = t('session') + ' ' + sessionShort;
-
       resizeCanvas();
       window.addEventListener('resize', () => { resizeCanvas(); });
 
