@@ -14,9 +14,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mechanism Master · v0.1</title>
 
-  <meta name="description" content="Dört çubuk mekanizmaları tasarlayarak hedef eğrileri yakalayın. Gerçek makine mühendisliği prensipleri üzerine kurulu fizik puzzle oyunu.">
+  <meta name="description" content="Design four-bar linkages to trace target curves. A physics-based puzzle game built on real mechanical engineering kinematics, by Prof. Şahin Yavuz.">
   <meta name="author" content="Şahin Yavuz">
-  <meta name="keywords" content="mechanism, puzzle, engineering, four-bar linkage, mechanical engineering, indie game">
+  <meta name="keywords" content="mechanism, puzzle, engineering, four-bar linkage, mechanical engineering, indie game, physics puzzle, kinematics">
   <meta name="theme-color" content="#F4EFE6">
 
   <meta property="og:title" content="Mechanism Master">
@@ -24,7 +24,6 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://sahinyavuzz.github.io/mechanism-master/">
   <meta property="og:site_name" content="Mechanism Master">
-  <meta property="og:locale" content="tr_TR">
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Mechanism Master">
@@ -321,6 +320,32 @@
       box-shadow: inset 0 0 0 1px var(--ink);
     }
 
+    .lang-toggle {
+      display: inline-flex;
+      border: 1px solid var(--ink);
+      margin-bottom: 10px;
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      padding: 4px 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--ink-muted);
+      letter-spacing: 0.14em;
+      transition: all 0.12s ease;
+    }
+    .lang-btn.active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .lang-btn:hover:not(.active) {
+      background: var(--paper-deep);
+      color: var(--ink);
+    }
+
     .slider-row { margin-bottom: 12px; }
     .slider-row:last-child { margin-bottom: 0; }
     .slider-label {
@@ -519,12 +544,16 @@
         <div class="brand-glyph">⚙</div>
         <div class="brand-text">
           <div class="brand-title">Mechanism Master</div>
-          <div class="brand-subtitle">Dört çubuk mekanizma puzzle'ı · prototip 0.1</div>
+          <div class="brand-subtitle" data-i18n="subtitle">Four-bar mechanism puzzle · prototype 0.1</div>
         </div>
       </div>
       <div class="session-info">
-        <div class="em" id="session-id">Oturum —</div>
-        <div>Tasarım · Ş. Yavuz</div>
+        <div class="lang-toggle">
+          <button type="button" class="lang-btn" data-lang="tr">TR</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+        <div class="em" id="session-id">Session —</div>
+        <div data-i18n="design_credit">Designed by Ş. Yavuz</div>
       </div>
     </header>
 
@@ -542,67 +571,220 @@
           <div class="canvas-corners"><span></span><span></span><span></span><span></span></div>
           <canvas id="game-canvas"></canvas>
           <div class="meta-overlay">
-            <div><span class="em" id="grashof-tag">Mekanizma</span></div>
-            <div id="frame-tag">Levha 01</div>
+            <div><span class="em" id="grashof-tag">—</span></div>
+            <div id="frame-tag">—</div>
           </div>
           <div class="match-display" id="match-display">
-            <span class="label">Eğri uyumu</span>
+            <span class="label" data-i18n="match_label">Curve match</span>
             <span class="value" id="match-pct">—</span>
           </div>
           <div class="legend">
-            <span class="legend-item"><span class="legend-swatch target"></span>Hedef</span>
-            <span class="legend-item"><span class="legend-swatch player"></span>İz</span>
+            <span class="legend-item"><span class="legend-swatch target"></span><span data-i18n="legend_target">Target</span></span>
+            <span class="legend-item"><span class="legend-swatch player"></span><span data-i18n="legend_player">Trail</span></span>
           </div>
         </div>
       </div>
 
       <aside class="controls-panel">
         <div class="panel-section compact">
-          <div class="section-label">Seviyeler <span class="ref" id="won-count">0 / 6</span></div>
+          <div class="section-label"><span data-i18n="levels_section">Levels</span> <span class="ref" id="won-count">0 / 6</span></div>
           <div class="level-grid" id="level-grid"></div>
         </div>
 
         <div class="panel-section">
-          <div class="section-label">Çubuk uzunlukları <span class="ref">r₂ r₃ r₄</span></div>
-          <div class="ground-info">Zemin r₁ · <span class="em" id="r1-val">—</span> sabit</div>
+          <div class="section-label"><span data-i18n="length_section">Link lengths</span> <span class="ref">r₂ r₃ r₄</span></div>
+          <div class="ground-info"><span data-i18n="ground_label">Ground r₁</span> · <span class="em" id="r1-val">—</span> <span data-i18n="ground_suffix">fixed</span></div>
           <div id="length-sliders"></div>
         </div>
 
         <div class="panel-section">
-          <div class="section-label">Kuplör noktası <span class="ref">P</span></div>
+          <div class="section-label"><span data-i18n="coupler_section">Coupler point</span> <span class="ref">P</span></div>
           <div id="coupler-sliders"></div>
         </div>
 
         <div class="panel-section compact">
           <div class="action-row">
-            <button class="btn" id="btn-reset">İzi Sil</button>
-            <button class="btn btn-primary" id="btn-check">Uyumu Ölç</button>
+            <button class="btn" id="btn-reset" data-i18n="btn_reset">Clear Trail</button>
+            <button class="btn btn-primary" id="btn-check" data-i18n="btn_check">Check Match</button>
           </div>
         </div>
       </aside>
     </main>
 
     <footer>
-      <div>© 2026 Mechanism Master · Erken prototip</div>
-      <div id="status-text">Sistem hazır</div>
+      <div data-i18n="footer_left">© 2026 Mechanism Master · Early prototype</div>
+      <div id="status-text">System ready</div>
     </footer>
   </div>
 
   <div class="win-modal" id="win-modal">
     <div class="win-card">
-      <div class="win-stamp">Seviye tamamlandı</div>
-      <div class="win-title" id="win-title">Mükemmel</div>
+      <div class="win-stamp" data-i18n="win_stamp">Level complete</div>
+      <div class="win-title" id="win-title">Excellent</div>
       <div class="win-curve-name" id="win-curve-name">—</div>
       <div class="win-score" id="win-score">—%</div>
       <div class="win-tier" id="win-tier">—</div>
       <div class="action-row">
-        <button class="btn" id="btn-replay">Tekrar Dene</button>
-        <button class="btn btn-primary" id="btn-next">Sıradaki Seviye</button>
+        <button class="btn" id="btn-replay" data-i18n="btn_replay">Retry</button>
+        <button class="btn btn-primary" id="btn-next" data-i18n="btn_next">Next Level</button>
       </div>
     </div>
   </div>
 
   <script>
+    const I18N = {
+      tr: {
+        subtitle: "Dört çubuk mekanizma puzzle'ı · prototip 0.1",
+        design_credit: "Tasarım · Ş. Yavuz",
+        session: "Oturum",
+        levels_section: "Seviyeler",
+        length_section: "Çubuk uzunlukları",
+        coupler_section: "Kuplör noktası",
+        ground_label: "Zemin r₁",
+        ground_suffix: "sabit",
+        slider_r2: "Krank r₂",
+        slider_r3: "Kuplör r₃",
+        slider_r4: "Sallayıcı r₄",
+        slider_Lp: "Nokta uzaklığı",
+        slider_alpha: "Nokta açısı",
+        btn_reset: "İzi Sil",
+        btn_check: "Uyumu Ölç",
+        btn_replay: "Tekrar Dene",
+        btn_next: "Sıradaki Seviye",
+        match_label: "Eğri uyumu",
+        legend_target: "Hedef",
+        legend_player: "İz",
+        grashof_ok: "Grashof · krank tam döner",
+        grashof_no: "Grashof değil · krank salınır",
+        plate: "Levha",
+        no_prefix: "No.",
+        curve_suffix: "eğrisi",
+        point_target: "nokta hedef",
+        status_ready: "Sistem hazır ·",
+        levels_loaded: "seviye yüklendi",
+        footer_left: "© 2026 Mechanism Master · Erken prototip",
+        win_stamp: "Seviye tamamlandı",
+        win_title_great: "Olağanüstü",
+        win_title_good: "Mükemmel",
+        win_title_done: "Tamamlandı",
+        tier_gold: "Altın · mükemmel",
+        tier_silver: "Gümüş · çok iyi",
+        tier_bronze: "Bronz · iyi",
+        locked: "MEKANİZMA KİLİTLENDİ"
+      },
+      en: {
+        subtitle: "Four-bar mechanism puzzle · prototype 0.1",
+        design_credit: "Designed by Ş. Yavuz",
+        session: "Session",
+        levels_section: "Levels",
+        length_section: "Link lengths",
+        coupler_section: "Coupler point",
+        ground_label: "Ground r₁",
+        ground_suffix: "fixed",
+        slider_r2: "Crank r₂",
+        slider_r3: "Coupler r₃",
+        slider_r4: "Rocker r₄",
+        slider_Lp: "Point distance",
+        slider_alpha: "Point angle",
+        btn_reset: "Clear Trail",
+        btn_check: "Check Match",
+        btn_replay: "Retry",
+        btn_next: "Next Level",
+        match_label: "Curve match",
+        legend_target: "Target",
+        legend_player: "Trail",
+        grashof_ok: "Grashof · crank fully rotates",
+        grashof_no: "Non-Grashof · crank oscillates",
+        plate: "Plate",
+        no_prefix: "No.",
+        curve_suffix: "curve",
+        point_target: "target points",
+        status_ready: "System ready ·",
+        levels_loaded: "levels loaded",
+        footer_left: "© 2026 Mechanism Master · Early prototype",
+        win_stamp: "Level complete",
+        win_title_great: "Outstanding",
+        win_title_good: "Excellent",
+        win_title_done: "Complete",
+        tier_gold: "Gold · perfect",
+        tier_silver: "Silver · very good",
+        tier_bronze: "Bronze · good",
+        locked: "MECHANISM LOCKED"
+      }
+    };
+
+    const LEVEL_NAMES = {
+      'Daire':   { tr: 'Daire',   en: 'Circle' },
+      'Yumurta': { tr: 'Yumurta', en: 'Egg' },
+      'Sekiz':   { tr: 'Sekiz',   en: 'Figure 8' },
+      'Yay':     { tr: 'Yay',     en: 'Arc' },
+      'Fasulye': { tr: 'Fasulye', en: 'Bean' },
+      'Yengeç':  { tr: 'Yengeç',  en: 'Crab' }
+    };
+
+    let LANG = 'en';
+
+    function detectInitialLang() {
+      try {
+        const saved = localStorage.getItem('mm_lang');
+        if (saved === 'tr' || saved === 'en') return saved;
+      } catch (e) {}
+      const nav = (navigator.language || 'en').toLowerCase();
+      return nav.startsWith('tr') ? 'tr' : 'en';
+    }
+
+    function t(key) {
+      return (I18N[LANG] && I18N[LANG][key]) || I18N.en[key] || key;
+    }
+
+    function levelName(idx) {
+      const lvl = LEVELS[idx];
+      const map = LEVEL_NAMES[lvl.name];
+      return (map && map[LANG]) || lvl.name;
+    }
+
+    function applyLanguage(lang) {
+      LANG = lang;
+      try { localStorage.setItem('mm_lang', lang); } catch (e) {}
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const val = t(key);
+        if (val) el.textContent = val;
+      });
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+      });
+      refreshDynamicText();
+    }
+
+    function refreshDynamicText() {
+      if (typeof LEVELS === 'undefined' || !LEVELS.length) return;
+      const lvl = LEVELS[currentLevel];
+      if (!lvl) return;
+      document.getElementById('banner-num').textContent =
+        t('no_prefix') + ' ' + String(currentLevel + 1).padStart(2, '0');
+      document.getElementById('banner-title').textContent =
+        levelName(currentLevel) + ' ' + t('curve_suffix');
+      document.getElementById('banner-spec').textContent =
+        'r₁ ' + lvl.target.r1 + '  ·  ' + targetCurve.length + ' ' + t('point_target');
+      document.getElementById('frame-tag').textContent =
+        t('plate') + ' ' + String(currentLevel + 1).padStart(2, '0');
+      document.getElementById('status-text').textContent =
+        t('status_ready') + ' ' + LEVELS.length + ' ' + t('levels_loaded');
+      document.getElementById('grashof-tag').textContent =
+        checkGrashof() ? t('grashof_ok') : t('grashof_no');
+      // Re-build sliders with translated labels
+      const r2 = document.getElementById('slider-r2');
+      if (r2) buildSliders();
+      // Session prefix
+      const sessId = document.getElementById('session-id');
+      if (sessId && sessId.dataset.sessId) {
+        sessId.textContent = t('session') + ' ' + sessId.dataset.sessId;
+      }
+      updateLevelGrid();
+    }
+
     // Seviye verisi · obfuscated to prevent trivial inspection.
     // Not cryptographic security; legal protection is in LICENSE.
     const _L = "W3sibmFtZSI6IkRhaXJlIiwidGFyZ2V0Ijp7InIxIjoyMDAsInIyIjo3MCwicjMiOjIyMCwicjQiOjIyMCwiTHAiOjExMCwiYWxwaGEiOjB9fSx7Im5hbWUiOiJZdW11cnRhIiwidGFyZ2V0Ijp7InIxIjoyMjAsInIyIjo2MCwicjMiOjIwMCwicjQiOjI0MCwiTHAiOjEzMCwiYWxwaGEiOjAuNX19LHsibmFtZSI6IlNla2l6IiwidGFyZ2V0Ijp7InIxIjoyNDAsInIyIjo5NSwicjMiOjIwMCwicjQiOjE4MCwiTHAiOjIxMCwiYWxwaGEiOjAuNTV9fSx7Im5hbWUiOiJZYXkiLCJ0YXJnZXQiOnsicjEiOjIwMCwicjIiOjUwLCJyMyI6MjQwLCJyNCI6MTgwLCJMcCI6MTUwLCJhbHBoYSI6MS4wfX0seyJuYW1lIjoiRmFzdWx5ZSIsInRhcmdldCI6eyJyMSI6MjIwLCJyMiI6ODAsInIzIjoxODAsInI0IjoyMjAsIkxwIjoxOTAsImFscGhhIjowLjh9fSx7Im5hbWUiOiJZZW5nZcOnIiwidGFyZ2V0Ijp7InIxIjoyNjAsInIyIjo3NSwicjMiOjIwMCwicjQiOjIyMCwiTHAiOjI0MCwiYWxwaGEiOi0wLjc1fX1d";
@@ -739,13 +921,12 @@
     function triggerWin(pct) {
       if (won.has(currentLevel)) return;
       won.add(currentLevel);
-      const lvl = LEVELS[currentLevel];
       document.getElementById('win-score').textContent = pct + '%';
-      document.getElementById('win-curve-name').textContent = lvl.name + ' eğrisi';
-      let tier = 'Bronz · iyi';
-      let title = 'Tamamlandı';
-      if (pct >= 90) { tier = 'Altın · mükemmel'; title = 'Olağanüstü'; }
-      else if (pct >= 80) { tier = 'Gümüş · çok iyi'; title = 'Mükemmel'; }
+      document.getElementById('win-curve-name').textContent = levelName(currentLevel) + ' ' + t('curve_suffix');
+      let tier = t('tier_bronze');
+      let title = t('win_title_done');
+      if (pct >= 90) { tier = t('tier_gold'); title = t('win_title_great'); }
+      else if (pct >= 80) { tier = t('tier_silver'); title = t('win_title_good'); }
       document.getElementById('win-tier').textContent = tier;
       document.getElementById('win-title').textContent = title;
       document.getElementById('win-modal').classList.add('show');
@@ -771,12 +952,12 @@
       updateMatchDisplay(null);
       syncSliderUI();
       updateLevelGrid();
-      document.getElementById('banner-num').textContent = 'No. ' + String(idx + 1).padStart(2, '0');
-      document.getElementById('banner-title').textContent = lvl.name + ' eğrisi';
+      document.getElementById('banner-num').textContent = t('no_prefix') + ' ' + String(idx + 1).padStart(2, '0');
+      document.getElementById('banner-title').textContent = levelName(idx) + ' ' + t('curve_suffix');
       document.getElementById('banner-spec').textContent =
-        'r₁ ' + lvl.target.r1 + '  ·  ' + targetCurve.length + ' nokta hedef';
+        'r₁ ' + lvl.target.r1 + '  ·  ' + targetCurve.length + ' ' + t('point_target');
       document.getElementById('r1-val').textContent = lvl.target.r1;
-      document.getElementById('frame-tag').textContent = 'Levha ' + String(idx + 1).padStart(2, '0');
+      document.getElementById('frame-tag').textContent = t('plate') + ' ' + String(idx + 1).padStart(2, '0');
     }
 
     function updateWonCount() {
@@ -793,7 +974,7 @@
         if (won.has(i)) cls += ' won';
         btn.className = cls;
         btn.textContent = String(i + 1).padStart(2, '0');
-        btn.title = l.name;
+        btn.title = levelName(i);
         btn.addEventListener('click', () => loadLevel(i));
         grid.appendChild(btn);
       });
@@ -801,13 +982,13 @@
 
     const SLIDER_SPECS = {
       length: [
-        { key: 'r2', label: 'Krank r₂',    min: 20,  max: 130, step: 1 },
-        { key: 'r3', label: 'Kuplör r₃',   min: 100, max: 300, step: 1 },
-        { key: 'r4', label: 'Sallayıcı r₄', min: 100, max: 300, step: 1 }
+        { key: 'r2', labelKey: 'slider_r2', min: 20,  max: 130, step: 1 },
+        { key: 'r3', labelKey: 'slider_r3', min: 100, max: 300, step: 1 },
+        { key: 'r4', labelKey: 'slider_r4', min: 100, max: 300, step: 1 }
       ],
       coupler: [
-        { key: 'Lp',    label: 'Nokta uzaklığı', min: 0,   max: 280, step: 1 },
-        { key: 'alpha', label: 'Nokta açısı',    min: -90, max: 90,  step: 1, scale: Math.PI/180, suffix: '°' }
+        { key: 'Lp',    labelKey: 'slider_Lp',    min: 0,   max: 280, step: 1 },
+        { key: 'alpha', labelKey: 'slider_alpha', min: -90, max: 90,  step: 1, scale: Math.PI/180, suffix: '°' }
       ]
     };
 
@@ -821,7 +1002,7 @@
           row.className = 'slider-row';
           row.innerHTML =
             '<div class="slider-label">' +
-              '<span class="name">' + spec.label + '</span>' +
+              '<span class="name">' + t(spec.labelKey) + '</span>' +
               '<span class="slider-value" id="val-' + spec.key + '">—</span>' +
             '</div>' +
             '<input type="range" id="slider-' + spec.key + '" ' +
@@ -841,6 +1022,7 @@
           });
         });
       }
+      syncSliderUI();
     }
 
     function syncSliderUI() {
@@ -991,12 +1173,12 @@
         ctx.fillStyle = '#A02828';
         ctx.font = "11px 'JetBrains Mono', monospace";
         ctx.textAlign = 'center';
-        ctx.fillText('MEKANİZMA KİLİTLENDİ', W/2, cy - 30);
+        ctx.fillText(t('locked'), W/2, cy - 30);
       }
 
       const grashof = checkGrashof();
       document.getElementById('grashof-tag').textContent =
-        grashof ? 'Grashof · krank tam döner' : 'Grashof değil · krank salınır';
+        grashof ? t('grashof_ok') : t('grashof_no');
     }
 
     let lastTime = performance.now();
@@ -1017,8 +1199,24 @@
     }
 
     function init() {
-      const sessionId = 'MM-' + Date.now().toString(36).toUpperCase().slice(-5);
-      document.getElementById('session-id').textContent = 'Oturum ' + sessionId;
+      const sessionShort = 'MM-' + Date.now().toString(36).toUpperCase().slice(-5);
+      const sessIdEl = document.getElementById('session-id');
+      sessIdEl.dataset.sessId = sessionShort;
+
+      // Initialize language before any text rendering
+      LANG = detectInitialLang();
+      document.documentElement.lang = LANG;
+      // Apply static translations immediately
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const val = t(key);
+        if (val) el.textContent = val;
+      });
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-lang') === LANG);
+        b.addEventListener('click', () => applyLanguage(b.getAttribute('data-lang')));
+      });
+      sessIdEl.textContent = t('session') + ' ' + sessionShort;
 
       resizeCanvas();
       window.addEventListener('resize', () => { resizeCanvas(); });
@@ -1047,7 +1245,8 @@
         loadLevel(next);
       });
 
-      document.getElementById('status-text').textContent = 'Sistem hazır · ' + LEVELS.length + ' seviye yüklendi';
+      document.getElementById('status-text').textContent =
+        t('status_ready') + ' ' + LEVELS.length + ' ' + t('levels_loaded');
       requestAnimationFrame(animate);
     }
 
