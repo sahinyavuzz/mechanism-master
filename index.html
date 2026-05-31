@@ -1221,14 +1221,15 @@
 
     function computeViewTransform(W, H) {
       if (!targetBounds) return { cx: W/2 - params.r1/2, cy: H * 0.62, vs: 1 };
-      const padFrac = 0.13;
+      const pad = 0.12;
       const minX = Math.min(0, targetBounds.minX);
       const maxX = Math.max(params.r1, targetBounds.maxX);
-      const minY = Math.min(-40, targetBounds.minY);
-      const maxY = targetBounds.maxY;
-      const spanX = (maxX - minX) * (1 + 2 * padFrac);
-      const spanY = (maxY - minY) * (1 + 2 * padFrac);
-      const vs = Math.min(W / spanX, H / spanY);
+      const minY = Math.min(-30, targetBounds.minY);
+      const maxY = Math.max(10, targetBounds.maxY);
+      const spanX = (maxX - minX) * (1 + 2 * pad);
+      const spanY = (maxY - minY) * (1 + 2 * pad);
+      // Never upscale — only downscale when content overflows
+      const vs = Math.min(1, W / spanX, H / spanY);
       const cx = W/2 - ((minX + maxX) / 2) * vs;
       const cy = H/2 + ((minY + maxY) / 2) * vs;
       return { cx, cy, vs };
