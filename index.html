@@ -1356,6 +1356,85 @@
         grashof ? t('grashof_ok') : t('grashof_no');
     }
 
+    function drawOverlays(W, H, grashof) {
+      // Outer border
+      ctx.strokeStyle = '#1C1815';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(0.75, 0.75, W - 1.5, H - 1.5);
+
+      // Corner brackets
+      const CL = 18, CI = 10;
+      ctx.strokeStyle = '#3C342C';
+      ctx.lineWidth = 1;
+      ctx.lineCap = 'square';
+      ctx.beginPath();
+      ctx.moveTo(CI, CI + CL);       ctx.lineTo(CI, CI);       ctx.lineTo(CI + CL, CI);
+      ctx.moveTo(W-CI-CL, CI);       ctx.lineTo(W-CI, CI);     ctx.lineTo(W-CI, CI+CL);
+      ctx.moveTo(CI, H-CI-CL);       ctx.lineTo(CI, H-CI);     ctx.lineTo(CI+CL, H-CI);
+      ctx.moveTo(W-CI-CL, H-CI);     ctx.lineTo(W-CI, H-CI);   ctx.lineTo(W-CI, H-CI-CL);
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+
+      // Meta overlay — top right
+      ctx.font = "9.5px 'JetBrains Mono', monospace";
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#1C1815';
+      ctx.fillText((grashof ? t('grashof_ok') : t('grashof_no')).toUpperCase(), W - 22, 26);
+      ctx.fillStyle = '#6B635A';
+      ctx.fillText((t('plate') + ' ' + String(currentLevel + 1).padStart(2, '0')).toUpperCase(), W - 22, 42);
+
+      // Match display box — bottom left
+      const matchPct = document.getElementById('match-pct').textContent;
+      const isWin = document.getElementById('match-display').classList.contains('win');
+      const lbl = t('match_label').toUpperCase();
+      ctx.font = "9.5px 'JetBrains Mono', monospace";
+      const lw = ctx.measureText(lbl).width;
+      ctx.font = "600 22px 'Fraunces', serif";
+      const vw = ctx.measureText(matchPct).width;
+      const bp = 14, bg = 10, bh = 38;
+      const bw = bp + lw + bg + vw + bp;
+      const bx = 16, by = H - 16 - bh;
+      ctx.fillStyle = '#F4EFE6';
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.strokeStyle = '#1C1815';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(bx, by, bw, bh);
+      ctx.textAlign = 'left';
+      ctx.font = "9.5px 'JetBrains Mono', monospace";
+      ctx.fillStyle = '#6B635A';
+      ctx.fillText(lbl, bx + bp, by + bh/2 + 4);
+      ctx.font = "600 22px 'Fraunces', serif";
+      ctx.fillStyle = isWin ? '#B58A2E' : '#1C1815';
+      ctx.fillText(matchPct, bx + bp + lw + bg, by + bh - 9);
+
+      // Legend — bottom right
+      ctx.font = "9.5px 'JetBrains Mono', monospace";
+      ctx.textAlign = 'right';
+      const ly = H - 22;
+      const sw = 14, sg = 6, ig = 14;
+      const trailTxt = t('legend_player').toUpperCase();
+      ctx.fillStyle = '#A89E91';
+      ctx.fillText(trailTxt, W - 22, ly);
+      const tw = ctx.measureText(trailTxt).width;
+      ctx.fillStyle = '#1A3B6E';
+      ctx.fillRect(W - 22 - tw - sg - sw, ly - 7, sw, 2);
+      const targetTxt = t('legend_target').toUpperCase();
+      const tRight = W - 22 - tw - sg - sw - ig;
+      ctx.fillStyle = '#A89E91';
+      ctx.fillText(targetTxt, tRight, ly);
+      const tgw = ctx.measureText(targetTxt).width;
+      ctx.setLineDash([4, 3]);
+      ctx.strokeStyle = '#A02828';
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.75;
+      ctx.beginPath();
+      ctx.moveTo(tRight - tgw - sg - sw, ly - 6);
+      ctx.lineTo(tRight - tgw - sg, ly - 6);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    }
+
     let lastTime = performance.now();
     function animate(now) {
       const dt = Math.min((now - lastTime) / 1000, 0.05);
@@ -1460,6 +1539,10 @@
       }
 
       document.getElementById('btn-screenshot').addEventListener('click', () => {
+        // Draw frame overlays onto the canvas (animation loop resets on next frame)
+        const rect = canvas.getBoundingClientRect();
+        drawOverlays(rect.width, rect.height, checkGrashof());
+
         const offscreen = document.createElement('canvas');
         offscreen.width = canvas.width;
         offscreen.height = canvas.height;
