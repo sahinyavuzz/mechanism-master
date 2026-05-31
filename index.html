@@ -452,6 +452,73 @@
       animation: fadein 0.25s ease;
     }
     .win-modal.show { display: flex; }
+
+    .tutorial-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(28, 24, 21, 0.6);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      animation: fadein 0.3s ease;
+    }
+    .tutorial-overlay.hidden { display: none; }
+    .tutorial-card {
+      background: var(--paper);
+      background-image:
+        linear-gradient(rgba(60,52,44,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(60,52,44,0.05) 1px, transparent 1px);
+      background-size: 28px 28px;
+      border: 1.5px solid var(--ink);
+      padding: 32px 40px 28px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      position: relative;
+      animation: pop 0.3s cubic-bezier(0.2, 1.5, 0.5, 1);
+    }
+    .tutorial-card::before {
+      content: '';
+      position: absolute;
+      top: 8px; left: 8px; right: 8px; bottom: 8px;
+      border: 1px solid var(--ink-light);
+      pointer-events: none;
+    }
+    .tutorial-dots {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      margin-bottom: 22px;
+    }
+    .tutorial-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ink-light);
+      transition: background 0.2s;
+    }
+    .tutorial-dots span.active { background: var(--ink); }
+    .tutorial-icon {
+      font-size: 32px;
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+    .tutorial-title {
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      margin-bottom: 12px;
+    }
+    .tutorial-body {
+      font-size: 12px;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      letter-spacing: 0.02em;
+      margin-bottom: 26px;
+    }
     @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 
     .win-card {
@@ -619,6 +686,21 @@
     </footer>
   </div>
 
+  <div class="tutorial-overlay" id="tutorial-overlay">
+    <div class="tutorial-card">
+      <div class="tutorial-dots">
+        <span class="active"></span><span></span><span></span>
+      </div>
+      <div class="tutorial-icon" id="tut-icon">⚙</div>
+      <div class="tutorial-title" id="tut-title"></div>
+      <div class="tutorial-body" id="tut-body"></div>
+      <div class="action-row">
+        <button class="btn" id="btn-tut-skip"></button>
+        <button class="btn btn-primary" id="btn-tut-next"></button>
+      </div>
+    </div>
+  </div>
+
   <div class="win-modal" id="win-modal">
     <div class="win-card">
       <div class="win-stamp" data-i18n="win_stamp">Level complete</div>
@@ -654,6 +736,15 @@
         btn_reset: "İzi Sil",
         btn_check: "Uyumu Ölç",
         btn_screenshot: "Görüntü Kaydet",
+        tut_skip: "Atla",
+        tut_next: "İleri",
+        tut_play: "Oynayalım!",
+        tut_1_title: "Mekanizma",
+        tut_1_body: "Dört çubuklu mekanizma: zemin (r₁), krank (r₂), kuplör (r₃) ve sallayıcı (r₄). Krank döndükçe kuplör üzerindeki P noktası bir eğri çizer.",
+        tut_2_title: "Hedef",
+        tut_2_body: "Kırmızı kesik çizgi sizin hedefiniz. Mavi iz ise mekanizmanızın çizdiği yol. Bunları birbirine eşleştirmeniz gerekiyor.",
+        tut_3_title: "Eşleştir",
+        tut_3_body: "Sağdaki beş kaydırıcıyı ayarlayın. %70 uyum Bronz, %80 Gümüş, %90 Altın kazandırır. \"Uyumu Ölç\" ile sonucu görebilirsiniz.",
         btn_replay: "Tekrar Dene",
         btn_next: "Sıradaki Seviye",
         match_label: "Eğri uyumu",
@@ -694,6 +785,15 @@
         btn_reset: "Clear Trail",
         btn_check: "Check Match",
         btn_screenshot: "Save Screenshot",
+        tut_skip: "Skip",
+        tut_next: "Next",
+        tut_play: "Let's Play!",
+        tut_1_title: "The Linkage",
+        tut_1_body: "A four-bar linkage: ground (r₁), crank (r₂), coupler (r₃), and rocker (r₄). As the crank rotates, coupler point P traces a curve.",
+        tut_2_title: "The Target",
+        tut_2_body: "The red dashed curve is your target. The blue trail is the path your mechanism traces. Your goal: make them match.",
+        tut_3_title: "Match It",
+        tut_3_body: "Adjust the five sliders on the right. 70% match earns Bronze, 80% Silver, 90% Gold. Hit \"Check Match\" to see your score.",
         btn_replay: "Retry",
         btn_next: "Next Level",
         match_label: "Curve match",
@@ -729,6 +829,7 @@
     };
 
     let LANG = 'en';
+    let renderTutStep = null;
 
     function detectInitialLang() {
       try {
@@ -784,6 +885,10 @@
       const r2 = document.getElementById('slider-r2');
       if (r2) buildSliders();
       updateLevelGrid();
+      if (typeof renderTutStep === 'function' && document.getElementById('tutorial-overlay') &&
+          !document.getElementById('tutorial-overlay').classList.contains('hidden')) {
+        renderTutStep();
+      }
     }
 
     // Seviye verisi · obfuscated to prevent trivial inspection.
@@ -1241,6 +1346,49 @@
         const next = (currentLevel + 1) % LEVELS.length;
         loadLevel(next);
       });
+
+      // Tutorial
+      const TUT_STEPS = [
+        { icon: '⚙', titleKey: 'tut_1_title', bodyKey: 'tut_1_body' },
+        { icon: '◎', titleKey: 'tut_2_title', bodyKey: 'tut_2_body' },
+        { icon: '✓', titleKey: 'tut_3_title', bodyKey: 'tut_3_body' }
+      ];
+      let tutStep = 0;
+      const tutOverlay = document.getElementById('tutorial-overlay');
+      const tutDots = tutOverlay.querySelectorAll('.tutorial-dots span');
+
+      renderTutStep = function() {
+        const s = TUT_STEPS[tutStep];
+        document.getElementById('tut-icon').textContent = s.icon;
+        document.getElementById('tut-title').textContent = t(s.titleKey);
+        document.getElementById('tut-body').textContent = t(s.bodyKey);
+        document.getElementById('btn-tut-skip').textContent = t('tut_skip');
+        const isLast = tutStep === TUT_STEPS.length - 1;
+        document.getElementById('btn-tut-next').textContent = isLast ? t('tut_play') : t('tut_next');
+        tutDots.forEach((d, i) => d.classList.toggle('active', i === tutStep));
+      }
+
+      function closeTutorial() {
+        tutOverlay.classList.add('hidden');
+        try { localStorage.setItem('mm_tutorial_seen', '1'); } catch(e) {}
+      }
+
+      document.getElementById('btn-tut-skip').addEventListener('click', closeTutorial);
+      document.getElementById('btn-tut-next').addEventListener('click', () => {
+        if (tutStep < TUT_STEPS.length - 1) {
+          tutStep++;
+          renderTutStep();
+        } else {
+          closeTutorial();
+        }
+      });
+
+      const tutSeen = (() => { try { return localStorage.getItem('mm_tutorial_seen'); } catch(e) { return null; } })();
+      if (tutSeen) {
+        tutOverlay.classList.add('hidden');
+      } else {
+        renderTutStep();
+      }
 
       document.getElementById('btn-screenshot').addEventListener('click', () => {
         const link = document.createElement('a');
