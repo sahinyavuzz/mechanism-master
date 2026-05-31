@@ -320,6 +320,17 @@
       box-shadow: inset 0 0 0 1px var(--ink);
     }
 
+    .level-preview {
+      position: fixed;
+      background: var(--paper);
+      border: 1px solid var(--ink-light);
+      box-shadow: 2px 2px 0 var(--paper-line);
+      padding: 4px;
+      pointer-events: none;
+      display: none;
+      z-index: 50;
+    }
+
     .lang-toggle {
       display: inline-flex;
       border: 1px solid var(--ink);
@@ -686,6 +697,10 @@
     </footer>
   </div>
 
+  <div class="level-preview" id="level-preview">
+    <canvas id="preview-canvas" width="120" height="90"></canvas>
+  </div>
+
   <div class="tutorial-overlay" id="tutorial-overlay">
     <div class="tutorial-card">
       <div class="tutorial-dots">
@@ -752,7 +767,7 @@
         legend_player: "İz",
         grashof_ok: "Grashof · krank tam döner",
         grashof_no: "Grashof değil · krank salınır",
-        plate: "Levha",
+        plate: "Seviye",
         no_prefix: "No.",
         curve_suffix: "eğrisi",
         point_target: "nokta hedef",
@@ -801,7 +816,7 @@
         legend_player: "Trail",
         grashof_ok: "Grashof · crank fully rotates",
         grashof_no: "Non-Grashof · crank oscillates",
-        plate: "Plate",
+        plate: "Level",
         no_prefix: "No.",
         curve_suffix: "curve",
         point_target: "target points",
@@ -1082,6 +1097,45 @@
         btn.textContent = String(i + 1).padStart(2, '0');
         btn.title = levelName(i);
         btn.addEventListener('click', () => loadLevel(i));
+        btn.addEventListener('mouseenter', (e) => {
+          const preview = document.getElementById('level-preview');
+          const pcanvas = document.getElementById('preview-canvas');
+          const pctx = pcanvas.getContext('2d');
+          const PW = pcanvas.width, PH = pcanvas.height;
+          pctx.fillStyle = '#F4EFE6';
+          pctx.fillRect(0, 0, PW, PH);
+          const curve = generateTargetCurve(LEVELS[i].target);
+          const bounds = computeBounds(curve);
+          if (bounds && curve.length > 1) {
+            const pad = 14;
+            const s = Math.min(
+              (PW - 2*pad) / (bounds.maxX - bounds.minX),
+              (PH - 2*pad) / (bounds.maxY - bounds.minY)
+            );
+            const ox = PW/2 - (bounds.minX + bounds.maxX)/2 * s;
+            const oy = PH/2 + (bounds.minY + bounds.maxY)/2 * s;
+            pctx.strokeStyle = '#A02828';
+            pctx.lineWidth = 1.5;
+            pctx.setLineDash([4, 3]);
+            pctx.globalAlpha = 0.85;
+            pctx.beginPath();
+            pctx.moveTo(ox + curve[0].x * s, oy - curve[0].y * s);
+            for (let j = 1; j < curve.length; j++) {
+              pctx.lineTo(ox + curve[j].x * s, oy - curve[j].y * s);
+            }
+            pctx.closePath();
+            pctx.stroke();
+            pctx.setLineDash([]);
+            pctx.globalAlpha = 1;
+          }
+          const r = e.target.getBoundingClientRect();
+          preview.style.left = (r.right + 8) + 'px';
+          preview.style.top = r.top + 'px';
+          preview.style.display = 'block';
+        });
+        btn.addEventListener('mouseleave', () => {
+          document.getElementById('level-preview').style.display = 'none';
+        });
         grid.appendChild(btn);
       });
     }
@@ -1165,6 +1219,21 @@
       }
     }
 
+    function computeViewTransform(W, H) {
+      if (!targetBounds) return { cx: W/2 - params.r1/2, cy: H * 0.62, vs: 1 };
+      const padFrac = 0.13;
+      const minX = Math.min(0, targetBounds.minX);
+      const maxX = Math.max(params.r1, targetBounds.maxX);
+      const minY = Math.min(-40, targetBounds.minY);
+      const maxY = targetBounds.maxY;
+      const spanX = (maxX - minX) * (1 + 2 * padFrac);
+      const spanY = (maxY - minY) * (1 + 2 * padFrac);
+      const vs = Math.min(W / spanX, H / spanY);
+      const cx = W/2 - ((minX + maxX) / 2) * vs;
+      const cy = H/2 + ((minY + maxY) / 2) * vs;
+      return { cx, cy, vs };
+    }
+
     function draw() {
       const rect = canvas.getBoundingClientRect();
       const W = rect.width, H = rect.height;
@@ -1180,8 +1249,7 @@
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
       }
 
-      const cx = W/2 - params.r1/2;
-      const cy = H * 0.62;
+      const { cx, cy, vs } = computeViewTransform(W, H);
 
       if (targetCurve.length > 1) {
         ctx.strokeStyle = '#A02828';
@@ -1189,9 +1257,9 @@
         ctx.setLineDash([6, 4]);
         ctx.globalAlpha = 0.75;
         ctx.beginPath();
-        ctx.moveTo(cx + targetCurve[0].x, cy - targetCurve[0].y);
+        ctx.moveTo(cx + targetCurve[0].x * vs, cy - targetCurve[0].y * vs);
         for (let i = 1; i < targetCurve.length; i++) {
-          ctx.lineTo(cx + targetCurve[i].x, cy - targetCurve[i].y);
+          ctx.lineTo(cx + targetCurve[i].x * vs, cy - targetCurve[i].y * vs);
         }
         ctx.closePath();
         ctx.stroke();
@@ -1203,10 +1271,10 @@
       ctx.lineWidth = 1.8;
       ctx.beginPath();
       ctx.moveTo(cx - 34, cy);
-      ctx.lineTo(cx + params.r1 + 34, cy);
+      ctx.lineTo(cx + params.r1 * vs + 34, cy);
       ctx.stroke();
       ctx.strokeStyle = '#3C342C';
-      drawHatching(cx - 30, cx + params.r1 + 34, cy);
+      drawHatching(cx - 30, cx + params.r1 * vs + 34, cy);
 
       const sol = solve(theta2);
       if (sol) {
@@ -1217,9 +1285,9 @@
           ctx.strokeStyle = '#1A3B6E';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(cx + trail[0].x, cy - trail[0].y);
+          ctx.moveTo(cx + trail[0].x * vs, cy - trail[0].y * vs);
           for (let i = 1; i < trail.length; i++) {
-            ctx.lineTo(cx + trail[i].x, cy - trail[i].y);
+            ctx.lineTo(cx + trail[i].x * vs, cy - trail[i].y * vs);
           }
           ctx.stroke();
         }
@@ -1229,33 +1297,33 @@
         ctx.lineWidth = 3.2;
         ctx.beginPath();
         ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + sol.Ax, cy - sol.Ay);
+        ctx.lineTo(cx + sol.Ax * vs, cy - sol.Ay * vs);
         ctx.stroke();
 
         ctx.lineWidth = 0.9;
         ctx.setLineDash([3, 3]);
         ctx.beginPath();
-        ctx.moveTo(cx + sol.Ax, cy - sol.Ay);
-        ctx.lineTo(cx + sol.Px, cy - sol.Py);
-        ctx.lineTo(cx + sol.Bx, cy - sol.By);
+        ctx.moveTo(cx + sol.Ax * vs, cy - sol.Ay * vs);
+        ctx.lineTo(cx + sol.Px * vs, cy - sol.Py * vs);
+        ctx.lineTo(cx + sol.Bx * vs, cy - sol.By * vs);
         ctx.stroke();
         ctx.setLineDash([]);
 
         ctx.lineWidth = 3.2;
         ctx.beginPath();
-        ctx.moveTo(cx + sol.Ax, cy - sol.Ay);
-        ctx.lineTo(cx + sol.Bx, cy - sol.By);
+        ctx.moveTo(cx + sol.Ax * vs, cy - sol.Ay * vs);
+        ctx.lineTo(cx + sol.Bx * vs, cy - sol.By * vs);
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.moveTo(cx + sol.Bx, cy - sol.By);
-        ctx.lineTo(cx + params.r1, cy);
+        ctx.moveTo(cx + sol.Bx * vs, cy - sol.By * vs);
+        ctx.lineTo(cx + params.r1 * vs, cy);
         ctx.stroke();
 
         ctx.fillStyle = '#1C1815';
         const joints = [
-          [cx, cy], [cx + params.r1, cy],
-          [cx + sol.Ax, cy - sol.Ay], [cx + sol.Bx, cy - sol.By]
+          [cx, cy], [cx + params.r1 * vs, cy],
+          [cx + sol.Ax * vs, cy - sol.Ay * vs], [cx + sol.Bx * vs, cy - sol.By * vs]
         ];
         for (const p of joints) {
           ctx.beginPath();
@@ -1272,7 +1340,7 @@
         ctx.strokeStyle = '#F4EFE6';
         ctx.lineWidth = 1.8;
         ctx.beginPath();
-        ctx.arc(cx + sol.Px, cy - sol.Py, 6.5, 0, Math.PI*2);
+        ctx.arc(cx + sol.Px * vs, cy - sol.Py * vs, 6.5, 0, Math.PI*2);
         ctx.fill();
         ctx.stroke();
       } else {
