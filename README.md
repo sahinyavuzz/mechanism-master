@@ -55,7 +55,7 @@ If you played the game, your feedback would be invaluable. Tell me:
 Copyright © 2026 Şahin Yavuz. All rights reserved.  
 See [LICENSE.txt](LICENSE.txt) for full terms.
 
-This is proprietary software. Source code is visible (it is a web application) but its reproduction, modification, distribution, or commercial use without written permission is prohibited.
+This is proprietary software. Reproduction, modification, distribution, or commercial use without written permission is prohibited.
 
 ---
 
