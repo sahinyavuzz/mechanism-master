@@ -50,19 +50,6 @@ If you played the game, your feedback would be invaluable. Tell me:
 
 ---
 
-## Roadmap
-
-Possible directions based on feedback:
-
-- More levels (target: 30 hand-crafted curves)
-- Additional mechanism types: cams, gears, belt-and-pulley, Geneva drives
-- Drag-and-drop mechanism builder (place your own pivots and links)
-- Level editor with community sharing
-- Steam release (compiled native build)
-- iOS / Android via Capacitor
-
----
-
 ## License
 
 Copyright © 2026 Şahin Yavuz. All rights reserved.  

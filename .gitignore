@@ -1,6 +1,9 @@
-WALKTHROUGH.md
-CONTEXT.md
-CODEX_HANDOFF.md
+# Local development artifacts
 backups/
-files.zip
+*.zip
 index_ex.html
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
