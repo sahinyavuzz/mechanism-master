@@ -228,6 +228,25 @@
     }
     .match-display.win .value { color: var(--gold); }
 
+    .star-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: -10px 0 14px;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+    }
+    .level-btn .stars {
+      display: block;
+      margin-top: 3px;
+      color: var(--gold);
+      font-size: 8px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
     .legend {
       position: absolute;
       bottom: 16px;
@@ -283,52 +302,140 @@
     }
 
     .level-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
+      position: relative;
+      max-height: 368px;
+      min-height: 292px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px 4px;
+      border: 1px dashed var(--ink-light);
+      background:
+        linear-gradient(rgba(60,52,44,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(60,52,44,0.035) 1px, transparent 1px);
+      background-size: 18px 18px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--ink-light) transparent;
+    }
+    .campaign-map-inner {
+      position: relative;
+      min-height: 260px;
+    }
+    .campaign-path-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .campaign-path {
+      fill: none;
+      stroke: var(--ink-light);
+      stroke-width: 1.25;
+      stroke-dasharray: 5 5;
+      opacity: 0.8;
+    }
+    .campaign-section-label {
+      position: absolute;
+      left: 12px;
+      font-size: 8px;
+      line-height: 1;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      background: var(--paper);
+      padding: 0 4px;
+      z-index: 2;
     }
     .level-btn {
-      background: transparent;
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      transform: translate(-50%, -50%);
+      background: var(--paper);
       border: 1px solid var(--ink-light);
       color: var(--ink-muted);
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      font-weight: 500;
-      padding: 10px 0;
+      font-weight: 600;
+      padding: 0;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
       letter-spacing: 0.04em;
+      border-radius: 50%;
+      box-shadow: 2px 2px 0 var(--paper-line);
+      z-index: 3;
     }
     .level-btn:hover {
       border-color: var(--ink);
       color: var(--ink);
       background: var(--paper-deep);
+      transform: translate(-50%, -50%) scale(1.06);
     }
     .level-btn.active {
       border-color: var(--ink);
       background: var(--ink);
       color: var(--paper);
+      box-shadow: 2px 2px 0 var(--paper-line), 0 0 0 4px rgba(28,24,21,0.08);
     }
     .level-btn.won {
       border-color: var(--gold);
-      background: var(--gold);
-      color: var(--paper);
+      background: linear-gradient(180deg, rgba(181,138,46,0.18), rgba(181,138,46,0.06));
+      color: var(--ink);
     }
     .level-btn.won.active {
-      background: var(--gold);
-      border-color: var(--ink);
-      box-shadow: inset 0 0 0 1px var(--ink);
+      background: var(--ink);
+      border-color: var(--gold);
+      color: var(--paper);
+      box-shadow: inset 0 0 0 1px var(--gold), 2px 2px 0 var(--paper-line);
     }
+    .level-btn .stars {
+      position: absolute;
+      left: 50%;
+      top: 36px;
+      transform: translateX(-50%);
+      width: 60px;
+      color: var(--gold);
+      font-size: 8px;
+      line-height: 1;
+      letter-spacing: 0;
+      text-align: center;
+      text-shadow: 0 1px 0 var(--paper);
+    }
+    .level-btn.won.active .stars { color: var(--gold-light); }
 
     .level-preview {
       position: fixed;
+      width: 154px;
       background: var(--paper);
       border: 1px solid var(--ink-light);
       box-shadow: 2px 2px 0 var(--paper-line);
-      padding: 4px;
+      padding: 8px;
       pointer-events: none;
       display: none;
       z-index: 50;
+    }
+    .level-preview-title {
+      margin-top: 6px;
+      font-family: 'Fraunces', serif;
+      font-size: 13px;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+    .level-preview-meta {
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--ink-muted);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .level-preview-stars {
+      color: var(--gold);
+      letter-spacing: 0;
+      white-space: nowrap;
     }
 
     .lang-toggle {
@@ -530,6 +637,154 @@
       letter-spacing: 0.02em;
       margin-bottom: 26px;
     }
+
+    .coach-panel {
+      border: 1.5px solid var(--ink);
+      background: rgba(244, 239, 230, 0.92);
+      padding: 13px 16px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+      box-shadow: inset 0 0 0 1px rgba(168, 158, 145, 0.55);
+    }
+    .coach-panel.hidden { display: none; }
+    .coach-step {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      white-space: nowrap;
+    }
+    .coach-copy {
+      font-size: 11px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+    }
+    .coach-copy strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .coach-status {
+      width: 10px;
+      height: 10px;
+      border: 1px solid var(--ink);
+      background: var(--paper);
+    }
+    .coach-panel.done .coach-status {
+      background: var(--gold);
+      box-shadow: inset 0 0 0 1px var(--paper);
+    }
+    .coach-target {
+      display: inline-block;
+      margin-left: 8px;
+      padding-left: 8px;
+      border-left: 1px solid var(--ink-light);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .coach-focus {
+      outline: 1px solid rgba(160, 40, 40, 0.45);
+      outline-offset: 4px;
+      animation: coachPulse 1.15s ease-in-out infinite;
+    }
+
+    .swipe-finger {
+      --from-x: 0px;
+      --to-x: 0px;
+      --finger-y: 0px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 34px;
+      height: 34px;
+      pointer-events: none;
+      z-index: 80;
+      opacity: 0;
+      transform: translate(var(--from-x), var(--finger-y));
+    }
+    .swipe-finger.show {
+      opacity: 1;
+      animation: fingerSwipe 1.45s ease-in-out infinite;
+    }
+    .swipe-finger::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 0;
+      width: 12px;
+      height: 24px;
+      border: 2px solid var(--ink);
+      border-radius: 9px 9px 7px 7px;
+      background: var(--paper);
+      box-shadow: 2px 2px 0 rgba(160, 40, 40, 0.18);
+    }
+    .swipe-finger::after {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 21px;
+      width: 22px;
+      height: 8px;
+      border: 2px solid var(--ink);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      background: var(--paper);
+    }
+    .swipe-path {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 1px;
+      width: max(12px, calc(var(--to-x) - var(--from-x)));
+      pointer-events: none;
+      z-index: 79;
+      opacity: 0;
+      border-top: 1px dashed var(--accent);
+      transform: translate(calc(var(--from-x) + 17px), calc(var(--finger-y) + 13px));
+    }
+    .swipe-path.show { opacity: 0.65; }
+
+    .mechanism-hint {
+      margin-top: 12px;
+      border-top: 1px dashed var(--ink-light);
+      padding-top: 10px;
+      font-size: 10px;
+      line-height: 1.55;
+      color: var(--ink-muted);
+    }
+    .mechanism-hint strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .mechanism-hint.warn {
+      color: var(--accent-soft);
+    }
+    .slider-row.coach-focus .slider-label .name {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .btn.coach-focus {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .btn.btn-primary.coach-focus {
+      color: var(--paper);
+      box-shadow: 0 0 0 1px var(--accent), 0 0 0 6px rgba(160, 40, 40, 0.1);
+    }
+    .slider-row.coach-focus input[type="range"]::-webkit-slider-thumb {
+      box-shadow: 0 0 0 4px rgba(160, 40, 40, 0.12);
+    }
+    @keyframes coachPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(160, 40, 40, 0.0); }
+      50% { box-shadow: 0 0 0 7px rgba(160, 40, 40, 0.12); }
+    }
+    @keyframes fingerSwipe {
+      0%, 18% { transform: translate(var(--from-x), var(--finger-y)); opacity: 0; }
+      28% { opacity: 1; }
+      70% { transform: translate(var(--to-x), var(--finger-y)); opacity: 1; }
+      88%, 100% { transform: translate(var(--to-x), var(--finger-y)); opacity: 0; }
+    }
     @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 
     .win-card {
@@ -613,6 +868,26 @@
       header { flex-direction: column; align-items: flex-start; gap: 8px; }
       .session-info { text-align: left; }
     }
+
+    @media (max-width: 520px) {
+      body { padding: 24px 16px; }
+      .app { width: 100%; max-width: 100%; overflow-x: hidden; }
+      .controls-panel .action-row { grid-template-columns: 1fr; }
+      .win-card .action-row { grid-template-columns: 1fr; }
+      .canvas-wrap { min-height: 300px; }
+      .level-banner { flex-wrap: wrap; gap: 6px; }
+      .level-banner { align-items: flex-start; }
+      .level-banner > div:first-child { min-width: 0; }
+      .level-banner-spec { flex-basis: 100%; font-size: 8px; letter-spacing: 0.08em; white-space: normal; }
+      .meta-overlay { display: none; }
+      .section-label { gap: 8px; align-items: flex-start; }
+      .section-label .ref { white-space: nowrap; font-size: 8px; }
+      .legend { right: 14px; gap: 8px; font-size: 8px; }
+      .match-display { left: 14px; bottom: 14px; padding: 8px 10px; gap: 8px; }
+      .coach-panel { grid-template-columns: 1fr auto; }
+      .coach-step { grid-column: 1 / -1; }
+      .tutorial-card, .win-card { width: calc(100vw - 40px); padding: 28px 24px 24px; }
+    }
   </style>
 </head>
 <body>
@@ -660,6 +935,12 @@
             <span class="legend-item"><span class="legend-swatch player"></span><span data-i18n="legend_player">Trail</span></span>
           </div>
         </div>
+
+        <div class="coach-panel hidden" id="coach-panel">
+          <div class="coach-step" id="coach-step">Eğitim 1 / 2</div>
+          <div class="coach-copy" id="coach-copy"></div>
+          <div class="coach-status" id="coach-status" aria-hidden="true"></div>
+        </div>
       </div>
 
       <aside class="controls-panel">
@@ -672,6 +953,7 @@
           <div class="section-label"><span data-i18n="length_section">Link lengths</span> <span class="ref">r₂ r₃ r₄</span></div>
           <div class="ground-info"><span data-i18n="ground_label">Ground r₁</span> · <span class="em" id="r1-val">—</span> <span data-i18n="ground_suffix">fixed</span></div>
           <div id="length-sliders"></div>
+          <div class="mechanism-hint" id="mechanism-hint"></div>
         </div>
 
         <div class="panel-section">
@@ -697,8 +979,16 @@
     </footer>
   </div>
 
+  <div class="swipe-path" id="swipe-path" aria-hidden="true"></div>
+  <div class="swipe-finger" id="swipe-finger" aria-hidden="true"></div>
+
   <div class="level-preview" id="level-preview">
-    <canvas id="preview-canvas" width="120" height="90"></canvas>
+    <canvas id="preview-canvas" width="138" height="90"></canvas>
+    <div class="level-preview-title" id="preview-title">—</div>
+    <div class="level-preview-meta">
+      <span id="preview-best">—</span>
+      <span class="level-preview-stars" id="preview-stars">☆☆☆</span>
+    </div>
   </div>
 
   <div class="tutorial-overlay" id="tutorial-overlay">
@@ -722,6 +1012,7 @@
       <div class="win-title" id="win-title">Excellent</div>
       <div class="win-curve-name" id="win-curve-name">—</div>
       <div class="win-score" id="win-score">—%</div>
+      <div class="star-row" id="win-stars" aria-label="Level stars">☆☆☆</div>
       <div class="win-tier" id="win-tier">—</div>
       <div class="action-row">
         <button class="btn" id="btn-replay" data-i18n="btn_replay">Retry</button>
@@ -760,6 +1051,18 @@
         tut_2_body: "Kırmızı kesik çizgi sizin hedefiniz. Mavi iz ise mekanizmanızın çizdiği yol. Bunları birbirine eşleştirmeniz gerekiyor.",
         tut_3_title: "Eşleştir",
         tut_3_body: "Sağdaki beş kaydırıcıyı ayarlayın. %70 uyum Bronz, %80 Gümüş, %90 Altın kazandırır. \"Uyumu Ölç\" ile sonucu görebilirsiniz.",
+        coach_1_step: "Eğitim {current} / {total}",
+        coach_1_copy: "Krank r₂ kaydırıcısını oynatın; mavi izin hedef eğriye göre nasıl değiştiğini izleyin.",
+        coach_1_done: "Harika. İlk seviye akışını tamamladınız; artık hedefe daha iyi yaklaşmak için serbestçe ayarlayın.",
+        coach_r2_copy: "Parmağı izleyin: Krank r₂ değerini hedefe getirin.",
+        coach_r3_copy: "Şimdi kuplör r₃ değerini hedefe kaydırın.",
+        coach_r4_copy: "Sallayıcı r₄ değerini hedefe eşitleyin.",
+        coach_Lp_copy: "P noktasının uzaklığını hedef değere taşıyın.",
+        coach_alpha_copy: "P noktasının açısını sıfıra yaklaştırın.",
+        coach_check_copy: "Tam eşleşme hazır. Uyumu Ölç butonuna basıp resmi skoru alın.",
+        coach_target: "hedef",
+        grashof_hint_ok: "Krank tam tur dönebiliyor. Şimdi iz şeklini hedefe yaklaştırın.",
+        grashof_hint_warn: "Krank tam tur dönemiyor: en kısa + en uzun çubuk toplamı, diğer iki çubuktan küçük olmalı. r₂, r₃ veya r₄ değerini değiştirin.",
         btn_replay: "Tekrar Dene",
         btn_next: "Sıradaki Seviye",
         match_label: "Eğri uyumu",
@@ -809,6 +1112,18 @@
         tut_2_body: "The red dashed curve is your target. The blue trail is the path your mechanism traces. Your goal: make them match.",
         tut_3_title: "Match It",
         tut_3_body: "Adjust the five sliders on the right. 70% match earns Bronze, 80% Silver, 90% Gold. Hit \"Check Match\" to see your score.",
+        coach_1_step: "Training {current} / {total}",
+        coach_1_copy: "Move the crank r₂ slider and watch how the blue trail changes against the target curve.",
+        coach_1_done: "Great. You completed the first-level flow; now tune freely toward a better match.",
+        coach_r2_copy: "Follow the finger: move crank r₂ to the target value.",
+        coach_r3_copy: "Now slide coupler r₃ to its target value.",
+        coach_r4_copy: "Match rocker r₄ to the target value.",
+        coach_Lp_copy: "Move point distance to the target value.",
+        coach_alpha_copy: "Bring point angle close to zero.",
+        coach_check_copy: "Perfect match is ready. Press Check Match for the official score.",
+        coach_target: "target",
+        grashof_hint_ok: "The crank can complete a full turn. Tune the trail shape toward the target.",
+        grashof_hint_warn: "The crank cannot complete a full turn: shortest + longest link must be smaller than the other two. Adjust r₂, r₃, or r₄.",
         btn_replay: "Retry",
         btn_next: "Next Level",
         match_label: "Curve match",
@@ -883,6 +1198,8 @@
         const val = t(key);
         if (val) el.textContent = val;
       });
+      refreshMechanismHint();
+      updateCoachPanel();
       document.querySelectorAll('.lang-btn').forEach(b => {
         b.classList.toggle('active', b.getAttribute('data-lang') === lang);
       });
@@ -922,6 +1239,7 @@
 
     let currentLevel = 0;
     let won = new Set();
+    let progress = loadProgress();
     let params = { r1: 200, r2: 50, r3: 220, r4: 220, Lp: 80, alpha: 0 };
     let theta2 = 0;
     let direction = 1;
@@ -929,6 +1247,45 @@
     let targetCurve = [];
     let targetBounds = null;
     let matchTimer = null;
+    let coachActive = false;
+    let coachComplete = false;
+    let coachStepIndex = 0;
+
+    const COACH_START = { r2: 50, r3: 180, r4: 250, Lp: 80, alphaDeg: -25 };
+    const COACH_STEPS = [
+      { key: 'r2', target: 'slider-r2', label: 'r₂', copyKey: 'coach_r2_copy', targetValue: 70, tolerance: 1 },
+      { key: 'r3', target: 'slider-r3', label: 'r₃', copyKey: 'coach_r3_copy', targetValue: 220, tolerance: 1 },
+      { key: 'r4', target: 'slider-r4', label: 'r₄', copyKey: 'coach_r4_copy', targetValue: 220, tolerance: 1 },
+      { key: 'Lp', target: 'slider-Lp', label: 'P', copyKey: 'coach_Lp_copy', targetValue: 110, tolerance: 1 },
+      { key: 'alpha', target: 'slider-alpha', label: 'α', copyKey: 'coach_alpha_copy', targetValue: 0, tolerance: 1, suffix: '°' },
+      { key: 'check', target: 'btn-check', label: '✓', copyKey: 'coach_check_copy' }
+    ];
+
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem('mm_progress_v1');
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === 'object' ? parsed : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveProgress() {
+      try { localStorage.setItem('mm_progress_v1', JSON.stringify(progress)); } catch (e) {}
+    }
+
+    function starsForPct(pct) {
+      if (pct >= 90) return 3;
+      if (pct >= 80) return 2;
+      if (pct >= 70) return 1;
+      return 0;
+    }
+
+    function renderStars(count) {
+      return '★'.repeat(count) + '☆'.repeat(Math.max(0, 3 - count));
+    }
 
     function solve(t, p) {
       p = p || params;
@@ -985,6 +1342,142 @@
       return ls[0] + ls[3] < ls[1] + ls[2];
     }
 
+    function refreshMechanismHint() {
+      const ok = checkGrashof();
+      const hint = document.getElementById('mechanism-hint');
+      if (!hint) return;
+      hint.classList.toggle('warn', !ok);
+      hint.innerHTML = '<strong>' + (ok ? t('grashof_ok') : t('grashof_no')) + '</strong><br>' +
+        (ok ? t('grashof_hint_ok') : t('grashof_hint_warn'));
+    }
+
+    function coachStorageKey() {
+      return 'mm_coach_level_' + currentLevel + '_done';
+    }
+
+    function clearCoachFocus() {
+      document.querySelectorAll('.coach-focus').forEach(el => el.classList.remove('coach-focus'));
+    }
+
+    function formatCoachStep() {
+      return t('coach_1_step')
+        .replace('{current}', Math.min(coachStepIndex + 1, COACH_STEPS.length))
+        .replace('{total}', COACH_STEPS.length);
+    }
+
+    function currentSliderValue(step) {
+      if (!step || step.key === 'check') return null;
+      const raw = params[step.key];
+      return step.key === 'alpha' ? raw * 180 / Math.PI : raw;
+    }
+
+    function formatStepTarget(step) {
+      if (!step || step.targetValue === undefined) return '';
+      return '<span class="coach-target">' + t('coach_target') + ' ' + step.targetValue + (step.suffix || '') + '</span>';
+    }
+
+    function isStepTargetReached(step) {
+      if (!step || step.targetValue === undefined) return true;
+      const value = currentSliderValue(step);
+      return Math.abs(value - step.targetValue) <= (step.tolerance || 0);
+    }
+
+    function updateSwipeGuide() {
+      const finger = document.getElementById('swipe-finger');
+      const path = document.getElementById('swipe-path');
+      if (!finger || !path) return;
+      finger.classList.remove('show');
+      path.classList.remove('show');
+      if (!coachActive || coachComplete) return;
+      const step = COACH_STEPS[coachStepIndex];
+      if (!step || step.targetValue === undefined || isStepTargetReached(step)) return;
+      const slider = document.getElementById(step.target);
+      if (!slider) return;
+      const rect = slider.getBoundingClientRect();
+      const min = parseFloat(slider.min);
+      const max = parseFloat(slider.max);
+      const current = parseFloat(slider.value);
+      const target = step.targetValue;
+      const pct = value => (value - min) / (max - min);
+      const fromX = rect.left + rect.width * pct(current) - 17;
+      const toX = rect.left + rect.width * pct(target) - 17;
+      const y = rect.top + rect.height / 2 - 30;
+      const left = Math.min(fromX, toX);
+      const right = Math.max(fromX, toX);
+      finger.style.setProperty('--from-x', fromX + 'px');
+      finger.style.setProperty('--to-x', toX + 'px');
+      finger.style.setProperty('--finger-y', y + 'px');
+      path.style.setProperty('--from-x', left + 'px');
+      path.style.setProperty('--to-x', right + 'px');
+      path.style.setProperty('--finger-y', y + 'px');
+      finger.classList.add('show');
+      path.classList.add('show');
+    }
+
+    function updateCoachPanel() {
+      const panel = document.getElementById('coach-panel');
+      if (!panel) return;
+      panel.classList.toggle('hidden', !coachActive);
+      panel.classList.toggle('done', coachComplete);
+      clearCoachFocus();
+      if (!coachActive) {
+        updateSwipeGuide();
+        return;
+      }
+
+      document.getElementById('coach-step').textContent = formatCoachStep();
+      if (coachComplete) {
+        document.getElementById('coach-copy').textContent = t('coach_1_done');
+        updateSwipeGuide();
+        return;
+      }
+
+      const step = COACH_STEPS[coachStepIndex];
+      document.getElementById('coach-copy').innerHTML =
+        '<strong>' + step.label + '</strong> · ' + t(step.copyKey) + formatStepTarget(step);
+      const target = document.getElementById(step.target);
+      const focusEl = target?.closest('.slider-row') || target;
+      if (focusEl) focusEl.classList.add('coach-focus');
+      updateSwipeGuide();
+    }
+
+    function startCoachIfNeeded() {
+      if (currentLevel !== 0) return;
+      let done = null;
+      try { done = localStorage.getItem(coachStorageKey()); } catch(e) {}
+      if (done) return;
+      coachActive = true;
+      coachComplete = false;
+      coachStepIndex = 0;
+      updateCoachPanel();
+    }
+
+    function advanceCoach(action, score) {
+      if (!coachActive || coachComplete) return;
+      const step = COACH_STEPS[coachStepIndex];
+      if (!step || step.key !== action) return;
+      if (step.key === 'check' && score < 95) {
+        updateCoachPanel();
+        return;
+      }
+      if (!isStepTargetReached(step)) {
+        updateCoachPanel();
+        return;
+      }
+      if (coachStepIndex < COACH_STEPS.length - 1) {
+        coachStepIndex++;
+        updateCoachPanel();
+        return;
+      }
+      coachComplete = true;
+      try { localStorage.setItem(coachStorageKey(), '1'); } catch(e) {}
+      updateCoachPanel();
+      setTimeout(() => {
+        coachActive = false;
+        updateCoachPanel();
+      }, 3200);
+    }
+
     function reseed() {
       if (solve(theta2)) return true;
       for (let d = 0.01; d < Math.PI*2; d += 0.02) {
@@ -994,25 +1487,36 @@
       return false;
     }
 
-    function computeMatch() {
-      if (trail.length < 80 || targetCurve.length < 80) return 0;
+    function generateMechanismCurve(p) {
+      const points = [];
+      const steps = 240;
+      for (let i = 0; i < steps; i++) {
+        const t = (i / steps) * Math.PI * 2;
+        const sol = solve(t, p || params);
+        if (sol) points.push({ x: sol.Px, y: sol.Py });
+      }
+      return points;
+    }
+
+    function scoreCurves(reference, player) {
+      if (reference.length < 80 || player.length < 40) return 0;
       let sumT = 0;
-      for (const tp of targetCurve) {
+      for (const tp of reference) {
         let minD = Infinity;
-        for (const pp of trail) {
+        for (const pp of player) {
           const dx = tp.x - pp.x, dy = tp.y - pp.y;
           const d = dx*dx + dy*dy;
           if (d < minD) minD = d;
         }
         sumT += Math.sqrt(minD);
       }
-      const avgT = sumT / targetCurve.length;
-      const stride = Math.max(1, Math.floor(trail.length / 200));
+      const avgT = sumT / reference.length;
+      const stride = Math.max(1, Math.floor(player.length / 200));
       let sumP = 0, countP = 0;
-      for (let i = 0; i < trail.length; i += stride) {
-        const pp = trail[i];
+      for (let i = 0; i < player.length; i += stride) {
+        const pp = player[i];
         let minD = Infinity;
-        for (const tp of targetCurve) {
+        for (const tp of reference) {
           const dx = tp.x - pp.x, dy = tp.y - pp.y;
           const d = dx*dx + dy*dy;
           if (d < minD) minD = d;
@@ -1022,8 +1526,13 @@
       }
       const avgP = sumP / countP;
       const worst = Math.max(avgT, avgP);
-      const score = Math.max(0, 100 * (1 - worst / 45));
+      const coverage = Math.min(1, player.length / reference.length);
+      const score = Math.max(0, 100 * (1 - worst / 45)) * coverage;
       return Math.round(score);
+    }
+
+    function computeMatch() {
+      return scoreCurves(targetCurve, generateMechanismCurve(params));
     }
 
     function updateMatchDisplay(pct) {
@@ -1044,15 +1553,21 @@
       matchTimer = setTimeout(() => {
         const pct = computeMatch();
         updateMatchDisplay(pct);
-        if (pct >= 70) triggerWin(pct);
       }, 2200);
     }
 
     function triggerWin(pct) {
-      if (won.has(currentLevel)) return;
-      won.add(currentLevel);
+      const stars = starsForPct(pct);
+      const prev = progress[currentLevel] || { stars: 0, best: 0 };
+      const best = Math.max(prev.best || 0, pct);
+      const improved = stars > (prev.stars || 0) || pct > (prev.best || 0);
+      if ((prev.stars || 0) > 0 && !improved) return;
+      progress[currentLevel] = { stars: Math.max(prev.stars || 0, stars), best };
+      saveProgress();
+      won = new Set(Object.keys(progress).map(Number));
       document.getElementById('win-score').textContent = pct + '%';
       document.getElementById('win-curve-name').textContent = levelName(currentLevel) + ' ' + t('curve_suffix');
+      document.getElementById('win-stars').textContent = renderStars(stars);
       let tier = t('tier_bronze');
       let title = t('win_title_done');
       if (pct >= 90) { tier = t('tier_gold'); title = t('win_title_great'); }
@@ -1070,11 +1585,21 @@
       targetCurve = generateTargetCurve(lvl.target);
       targetBounds = computeBounds(targetCurve);
       params.r1 = lvl.target.r1;
-      params.r2 = 50;
-      params.r3 = 220;
-      params.r4 = 220;
-      params.Lp = 100;
-      params.alpha = 0;
+      let coachDone = null;
+      try { coachDone = localStorage.getItem('mm_coach_level_' + idx + '_done'); } catch(e) {}
+      if (idx === 0 && !coachDone) {
+        params.r2 = COACH_START.r2;
+        params.r3 = COACH_START.r3;
+        params.r4 = COACH_START.r4;
+        params.Lp = COACH_START.Lp;
+        params.alpha = COACH_START.alphaDeg * Math.PI / 180;
+      } else {
+        params.r2 = 50;
+        params.r3 = 220;
+        params.r4 = 220;
+        params.Lp = 100;
+        params.alpha = 0;
+      }
       theta2 = 0;
       direction = 1;
       trail = [];
@@ -1082,6 +1607,11 @@
       updateMatchDisplay(null);
       syncSliderUI();
       updateLevelGrid();
+      refreshMechanismHint();
+      if (idx !== 0) {
+        coachActive = false;
+        updateCoachPanel();
+      }
       document.getElementById('banner-num').textContent = t('no_prefix') + ' ' + String(idx + 1).padStart(2, '0');
       document.getElementById('banner-title').textContent = levelName(idx) + ' ' + t('curve_suffix');
       document.getElementById('banner-spec').textContent =
@@ -1091,62 +1621,115 @@
     }
 
     function updateWonCount() {
+      won = new Set(Object.keys(progress).map(Number));
       document.getElementById('won-count').textContent = won.size + ' / ' + LEVELS.length;
+    }
+
+    function drawLevelPreview(i, e) {
+      const preview = document.getElementById('level-preview');
+      const pcanvas = document.getElementById('preview-canvas');
+      const pctx = pcanvas.getContext('2d');
+      const previewProgress = progress[i];
+      document.getElementById('preview-title').textContent = levelName(i);
+      document.getElementById('preview-best').textContent = previewProgress ? Math.round(previewProgress.best || 0) + '%' : '—';
+      document.getElementById('preview-stars').textContent = previewProgress ? renderStars(previewProgress.stars || 1) : '☆☆☆';
+      const PW = pcanvas.width, PH = pcanvas.height;
+      pctx.fillStyle = '#F4EFE6';
+      pctx.fillRect(0, 0, PW, PH);
+      const curve = generateTargetCurve(LEVELS[i].target);
+      const bounds = computeBounds(curve);
+      if (bounds && curve.length > 1) {
+        const pad = 14;
+        const s = Math.min(
+          (PW - 2*pad) / (bounds.maxX - bounds.minX),
+          (PH - 2*pad) / (bounds.maxY - bounds.minY)
+        );
+        const ox = PW/2 - (bounds.minX + bounds.maxX)/2 * s;
+        const oy = PH/2 + (bounds.minY + bounds.maxY)/2 * s;
+        pctx.strokeStyle = '#A02828';
+        pctx.lineWidth = 1.5;
+        pctx.setLineDash([4, 3]);
+        pctx.globalAlpha = 0.85;
+        pctx.beginPath();
+        pctx.moveTo(ox + curve[0].x * s, oy - curve[0].y * s);
+        for (let j = 1; j < curve.length; j++) {
+          pctx.lineTo(ox + curve[j].x * s, oy - curve[j].y * s);
+        }
+        pctx.closePath();
+        pctx.stroke();
+        pctx.setLineDash([]);
+        pctx.globalAlpha = 1;
+      }
+      const r = e.target.getBoundingClientRect();
+      const previewWidth = 170;
+      const left = r.right + previewWidth > window.innerWidth ? r.left - previewWidth : r.right + 8;
+      preview.style.left = Math.max(8, left) + 'px';
+      preview.style.top = Math.max(12, Math.min(r.top, window.innerHeight - 150)) + 'px';
+      preview.style.display = 'block';
+    }
+
+    function campaignPoint(i) {
+      const pattern = [
+        { x: 24, section: true },
+        { x: 46 },
+        { x: 66 },
+        { x: 78 },
+        { x: 58 },
+        { x: 34 }
+      ];
+      const p = pattern[i % pattern.length];
+      return { x: p.x, y: 34 + i * 64, section: i % 5 === 0 };
     }
 
     function updateLevelGrid() {
       const grid = document.getElementById('level-grid');
       grid.innerHTML = '';
+      const height = Math.max(268, 68 + (LEVELS.length - 1) * 64);
+      const inner = document.createElement('div');
+      inner.className = 'campaign-map-inner';
+      inner.style.height = height + 'px';
+
+      const points = LEVELS.map((_, i) => campaignPoint(i));
+      const pathPoints = points.map(p => (p.x * 3) + ',' + p.y).join(' ');
+      inner.innerHTML =
+        '<svg class="campaign-path-svg" viewBox="0 0 300 ' + height + '" preserveAspectRatio="none" aria-hidden="true">' +
+          '<polyline class="campaign-path" points="' + pathPoints + '"></polyline>' +
+        '</svg>';
+
       LEVELS.forEach((l, i) => {
+        const p = points[i];
+        if (i % 5 === 0) {
+          const label = document.createElement('div');
+          label.className = 'campaign-section-label';
+          label.style.top = Math.max(4, p.y - 34) + 'px';
+          label.textContent = t('plate') + ' ' + String(i + 1).padStart(2, '0') + '–' + String(Math.min(i + 5, LEVELS.length)).padStart(2, '0');
+          inner.appendChild(label);
+        }
+
         const btn = document.createElement('button');
         let cls = 'level-btn';
         if (i === currentLevel) cls += ' active';
-        if (won.has(i)) cls += ' won';
+        const levelProgress = progress[i];
+        if (levelProgress) cls += ' won';
         btn.className = cls;
-        btn.textContent = String(i + 1).padStart(2, '0');
-        btn.title = levelName(i);
+        btn.style.left = p.x + '%';
+        btn.style.top = p.y + 'px';
+        btn.innerHTML = String(i + 1).padStart(2, '0') + (levelProgress ? '<span class="stars">' + renderStars(levelProgress.stars || 1) + '</span>' : '');
+        btn.title = levelName(i) + (levelProgress ? ' · ' + Math.round(levelProgress.best || 0) + '%' : '');
         btn.addEventListener('click', () => loadLevel(i));
-        btn.addEventListener('mouseenter', (e) => {
-          const preview = document.getElementById('level-preview');
-          const pcanvas = document.getElementById('preview-canvas');
-          const pctx = pcanvas.getContext('2d');
-          const PW = pcanvas.width, PH = pcanvas.height;
-          pctx.fillStyle = '#F4EFE6';
-          pctx.fillRect(0, 0, PW, PH);
-          const curve = generateTargetCurve(LEVELS[i].target);
-          const bounds = computeBounds(curve);
-          if (bounds && curve.length > 1) {
-            const pad = 14;
-            const s = Math.min(
-              (PW - 2*pad) / (bounds.maxX - bounds.minX),
-              (PH - 2*pad) / (bounds.maxY - bounds.minY)
-            );
-            const ox = PW/2 - (bounds.minX + bounds.maxX)/2 * s;
-            const oy = PH/2 + (bounds.minY + bounds.maxY)/2 * s;
-            pctx.strokeStyle = '#A02828';
-            pctx.lineWidth = 1.5;
-            pctx.setLineDash([4, 3]);
-            pctx.globalAlpha = 0.85;
-            pctx.beginPath();
-            pctx.moveTo(ox + curve[0].x * s, oy - curve[0].y * s);
-            for (let j = 1; j < curve.length; j++) {
-              pctx.lineTo(ox + curve[j].x * s, oy - curve[j].y * s);
-            }
-            pctx.closePath();
-            pctx.stroke();
-            pctx.setLineDash([]);
-            pctx.globalAlpha = 1;
-          }
-          const r = e.target.getBoundingClientRect();
-          preview.style.left = (r.right + 8) + 'px';
-          preview.style.top = r.top + 'px';
-          preview.style.display = 'block';
-        });
+        btn.addEventListener('mouseenter', (e) => drawLevelPreview(i, e));
         btn.addEventListener('mouseleave', () => {
           document.getElementById('level-preview').style.display = 'none';
         });
-        grid.appendChild(btn);
+        inner.appendChild(btn);
       });
+
+      grid.appendChild(inner);
+      const active = grid.querySelector('.level-btn.active');
+      if (active) {
+        const activeTop = parseFloat(active.style.top) || 0;
+        grid.scrollTop = Math.max(0, activeTop - grid.clientHeight / 2);
+      }
     }
 
     const SLIDER_SPECS = {
@@ -1187,6 +1770,9 @@
             trail = [];
             reseed();
             updateMatchDisplay(null);
+            refreshMechanismHint();
+            advanceCoach(spec.key);
+            updateSwipeGuide();
             scheduleAutoMatch();
           });
         });
@@ -1363,6 +1949,7 @@
       const grashof = checkGrashof();
       document.getElementById('grashof-tag').textContent =
         grashof ? t('grashof_ok') : t('grashof_no');
+      refreshMechanismHint();
     }
 
     function drawOverlays(W, H, grashof) {
@@ -1478,7 +2065,8 @@
         b.addEventListener('click', () => applyLanguage(b.getAttribute('data-lang')));
       });
       resizeCanvas();
-      window.addEventListener('resize', () => { resizeCanvas(); });
+      window.addEventListener('resize', () => { resizeCanvas(); updateSwipeGuide(); });
+      window.addEventListener('scroll', updateSwipeGuide, { passive: true });
 
       buildSliders();
       updateWonCount();
@@ -1491,6 +2079,7 @@
       document.getElementById('btn-check').addEventListener('click', () => {
         const pct = computeMatch();
         updateMatchDisplay(pct);
+        advanceCoach('check', pct);
         if (pct >= 70) triggerWin(pct);
       });
       document.getElementById('btn-replay').addEventListener('click', () => {
@@ -1530,19 +2119,24 @@
         try { localStorage.setItem('mm_tutorial_seen', '1'); } catch(e) {}
       }
 
-      document.getElementById('btn-tut-skip').addEventListener('click', closeTutorial);
+      document.getElementById('btn-tut-skip').addEventListener('click', () => {
+        closeTutorial();
+        startCoachIfNeeded();
+      });
       document.getElementById('btn-tut-next').addEventListener('click', () => {
         if (tutStep < TUT_STEPS.length - 1) {
           tutStep++;
           renderTutStep();
         } else {
           closeTutorial();
+          startCoachIfNeeded();
         }
       });
 
       const tutSeen = (() => { try { return localStorage.getItem('mm_tutorial_seen'); } catch(e) { return null; } })();
       if (tutSeen) {
         tutOverlay.classList.add('hidden');
+        startCoachIfNeeded();
       } else {
         renderTutStep();
       }
@@ -1567,6 +2161,8 @@
 
       document.getElementById('status-text').textContent =
         t('status_ready') + ' ' + LEVELS.length + ' ' + t('levels_loaded');
+      refreshMechanismHint();
+      updateCoachPanel();
       requestAnimationFrame(animate);
     }
 
