@@ -849,25 +849,6 @@
       color: var(--ink-muted);
       margin-bottom: 14px;
     }
-    .win-transmission {
-      display: inline-block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      padding: 5px 12px;
-      border: 1px solid var(--ink-light);
-      margin-bottom: 20px;
-      color: var(--ink-muted);
-    }
-    .win-transmission.good {
-      border-color: var(--player);
-      color: var(--player);
-      background: rgba(26, 59, 110, 0.06);
-    }
-    .win-transmission.poor {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
 
     footer {
       margin-top: 32px;
@@ -992,7 +973,7 @@
     </main>
 
     <footer>
-      <div data-i18n="footer_left">© 2026 Mechanism Master · Early prototype</div>
+      <div data-i18n="footer_left">© 2026 Mechanism Master</div>
       <div id="status-text">System ready</div>
     </footer>
   </div>
@@ -1032,7 +1013,6 @@
       <div class="win-score" id="win-score">—%</div>
       <div class="star-row" id="win-stars" aria-label="Level stars">☆☆☆</div>
       <div class="win-tier" id="win-tier">—</div>
-      <div class="win-transmission" id="win-transmission"></div>
       <div class="action-row">
         <button class="btn" id="btn-replay" data-i18n="btn_replay">Retry</button>
         <button class="btn btn-primary" id="btn-next" data-i18n="btn_next">Next Level</button>
@@ -1095,7 +1075,7 @@
         point_target: "nokta hedef",
         status_ready: "Sistem hazır ·",
         levels_loaded: "seviye yüklendi",
-        footer_left: "© 2026 Mechanism Master · Erken prototip",
+        footer_left: "© 2026 Mechanism Master",
         win_stamp: "Seviye tamamlandı",
         win_title_great: "Olağanüstü",
         win_title_good: "Mükemmel",
@@ -1103,9 +1083,6 @@
         tier_gold: "Altın · mükemmel",
         tier_silver: "Gümüş · çok iyi",
         tier_bronze: "Bronz · iyi",
-        transmission_good: "⚙ akıcı iletim  ·  μ_min = {val}°",
-        transmission_ok: "⚙ yeterli iletim  ·  μ_min = {val}°",
-        transmission_poor: "⚠ zayıf iletim  ·  μ_min = {val}°",
         locked: "MEKANİZMA KİLİTLENDİ"
       },
       en: {
@@ -1159,7 +1136,7 @@
         point_target: "target points",
         status_ready: "System ready ·",
         levels_loaded: "levels loaded",
-        footer_left: "© 2026 Mechanism Master · Early prototype",
+        footer_left: "© 2026 Mechanism Master",
         win_stamp: "Level complete",
         win_title_great: "Outstanding",
         win_title_good: "Excellent",
@@ -1167,9 +1144,6 @@
         tier_gold: "Gold · perfect",
         tier_silver: "Silver · very good",
         tier_bronze: "Bronze · good",
-        transmission_good: "⚙ smooth transmission  ·  μ_min = {val}°",
-        transmission_ok: "⚙ adequate transmission  ·  μ_min = {val}°",
-        transmission_poor: "⚠ poor transmission  ·  μ_min = {val}°",
         locked: "MECHANISM LOCKED"
       }
     };
@@ -1275,6 +1249,8 @@
     let coachActive = false;
     let coachComplete = false;
     let coachStepIndex = 0;
+    let _swipeTarget = null;
+    let _lastTouchedKey = null;
 
     const COACH_START = { r2: 50, r3: 180, r4: 250, Lp: 80, alphaDeg: -25 };
     const COACH_STEPS = [
@@ -1306,25 +1282,6 @@
       if (pct >= 80) return 2;
       if (pct >= 70) return 1;
       return 0;
-    }
-
-    function computeTransmissionAngle(p) {
-      p = p || params;
-      let minAngle = Infinity;
-      for (let i = 0; i < 360; i++) {
-        const theta = (i / 360) * Math.PI * 2;
-        const sol = solve(theta, p);
-        if (!sol) continue;
-        const BAx = sol.Ax - sol.Bx, BAy = sol.Ay - sol.By;
-        const BCx = p.r1 - sol.Bx, BCy = -sol.By;
-        const dot = BAx * BCx + BAy * BCy;
-        const mag = Math.sqrt(BAx*BAx + BAy*BAy) * Math.sqrt(BCx*BCx + BCy*BCy);
-        if (mag < 0.001) continue;
-        let angle = Math.acos(Math.min(1, Math.max(-1, dot / mag))) * 180 / Math.PI;
-        if (angle > 90) angle = 180 - angle;
-        minAngle = Math.min(minAngle, angle);
-      }
-      return minAngle === Infinity ? null : Math.round(minAngle);
     }
 
     function renderStars(count) {
@@ -1430,32 +1387,65 @@
       const finger = document.getElementById('swipe-finger');
       const path = document.getElementById('swipe-path');
       if (!finger || !path) return;
-      finger.classList.remove('show');
-      path.classList.remove('show');
-      if (!coachActive || coachComplete) return;
-      const step = COACH_STEPS[coachStepIndex];
-      if (!step || step.targetValue === undefined || isStepTargetReached(step)) return;
-      const slider = document.getElementById(step.target);
-      if (!slider) return;
-      const rect = slider.getBoundingClientRect();
-      const min = parseFloat(slider.min);
-      const max = parseFloat(slider.max);
-      const current = parseFloat(slider.value);
-      const target = step.targetValue;
-      const pct = value => (value - min) / (max - min);
-      const fromX = rect.left + rect.width * pct(current) - 17;
-      const toX = rect.left + rect.width * pct(target) - 17;
-      const y = rect.top + rect.height / 2 - 30;
-      const left = Math.min(fromX, toX);
-      const right = Math.max(fromX, toX);
-      finger.style.setProperty('--from-x', fromX + 'px');
-      finger.style.setProperty('--to-x', toX + 'px');
-      finger.style.setProperty('--finger-y', y + 'px');
-      path.style.setProperty('--from-x', left + 'px');
-      path.style.setProperty('--to-x', right + 'px');
-      path.style.setProperty('--finger-y', y + 'px');
-      finger.classList.add('show');
-      path.classList.add('show');
+
+      let shouldShow = false;
+      let stepId = null;
+
+      if (coachActive && !coachComplete) {
+        // Prefer last-touched slider if it has drifted from its target
+        let step = null;
+        if (_lastTouchedKey) {
+          const touched = COACH_STEPS.find(s => s.key === _lastTouchedKey && s.targetValue !== undefined);
+          if (touched && !isStepTargetReached(touched)) step = touched;
+        }
+        // Fall back to current sequential step
+        if (!step) {
+          const cur = COACH_STEPS[coachStepIndex];
+          if (cur && cur.targetValue !== undefined && !isStepTargetReached(cur)) step = cur;
+        }
+        if (step) {
+          const slider = document.getElementById(step.target);
+          if (slider) {
+            const rect = slider.getBoundingClientRect();
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            const current = parseFloat(slider.value);
+            const target = step.targetValue;
+            const pct = v => (v - min) / (max - min);
+            const fromX = rect.left + rect.width * pct(current) - 17;
+            const toX = rect.left + rect.width * pct(target) - 17;
+            if (Math.abs(toX - fromX) > 3) {
+              const y = rect.top + rect.height / 2 - 30;
+              finger.style.setProperty('--from-x', fromX + 'px');
+              finger.style.setProperty('--to-x', toX + 'px');
+              finger.style.setProperty('--finger-y', y + 'px');
+              path.style.setProperty('--from-x', Math.min(fromX, toX) + 'px');
+              path.style.setProperty('--to-x', Math.max(fromX, toX) + 'px');
+              path.style.setProperty('--finger-y', y + 'px');
+              shouldShow = true;
+              stepId = step.target;
+            }
+          }
+        }
+      }
+
+      const isShowing = finger.classList.contains('show');
+      if (!shouldShow) {
+        if (isShowing) { finger.classList.remove('show'); path.classList.remove('show'); }
+        _swipeTarget = null;
+      } else if (stepId !== _swipeTarget) {
+        // New slider: force-restart animation
+        finger.classList.remove('show');
+        path.classList.remove('show');
+        void finger.offsetWidth;
+        finger.classList.add('show');
+        path.classList.add('show');
+        _swipeTarget = stepId;
+      } else if (!isShowing) {
+        finger.classList.add('show');
+        path.classList.add('show');
+      }
+      // Same target, already showing: CSS vars updated above — animation continues naturally
     }
 
     function updateCoachPanel() {
@@ -1618,19 +1608,6 @@
       else if (pct >= 80) { tier = t('tier_silver'); title = t('win_title_good'); }
       document.getElementById('win-tier').textContent = tier;
       document.getElementById('win-title').textContent = title;
-      const mu = computeTransmissionAngle();
-      const transEl = document.getElementById('win-transmission');
-      if (mu !== null) {
-        let tkey, tcls;
-        if (mu >= 45) { tkey = 'transmission_good'; tcls = 'good'; }
-        else if (mu >= 30) { tkey = 'transmission_ok'; tcls = 'ok'; }
-        else { tkey = 'transmission_poor'; tcls = 'poor'; }
-        transEl.textContent = t(tkey).replace('{val}', mu);
-        transEl.className = 'win-transmission ' + tcls;
-        transEl.style.display = '';
-      } else {
-        transEl.style.display = 'none';
-      }
       document.getElementById('win-modal').classList.add('show');
       updateLevelGrid();
       updateWonCount();
@@ -1828,6 +1805,7 @@
             reseed();
             updateMatchDisplay(null);
             refreshMechanismHint();
+            _lastTouchedKey = spec.key;
             advanceCoach(spec.key);
             updateSwipeGuide();
             scheduleAutoMatch();
