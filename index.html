@@ -847,7 +847,26 @@
       text-transform: uppercase;
       letter-spacing: 0.2em;
       color: var(--ink-muted);
-      margin-bottom: 28px;
+      margin-bottom: 14px;
+    }
+    .win-transmission {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      padding: 5px 12px;
+      border: 1px solid var(--ink-light);
+      margin-bottom: 20px;
+      color: var(--ink-muted);
+    }
+    .win-transmission.good {
+      border-color: var(--player);
+      color: var(--player);
+      background: rgba(26, 59, 110, 0.06);
+    }
+    .win-transmission.poor {
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
     footer {
@@ -858,8 +877,7 @@
       justify-content: space-between;
       font-size: 9.5px;
       color: var(--ink-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.12em;
     }
 
     @media (max-width: 900px) {
@@ -1014,6 +1032,7 @@
       <div class="win-score" id="win-score">—%</div>
       <div class="star-row" id="win-stars" aria-label="Level stars">☆☆☆</div>
       <div class="win-tier" id="win-tier">—</div>
+      <div class="win-transmission" id="win-transmission"></div>
       <div class="action-row">
         <button class="btn" id="btn-replay" data-i18n="btn_replay">Retry</button>
         <button class="btn btn-primary" id="btn-next" data-i18n="btn_next">Next Level</button>
@@ -1084,6 +1103,9 @@
         tier_gold: "Altın · mükemmel",
         tier_silver: "Gümüş · çok iyi",
         tier_bronze: "Bronz · iyi",
+        transmission_good: "⚙ akıcı iletim  ·  μ_min = {val}°",
+        transmission_ok: "⚙ yeterli iletim  ·  μ_min = {val}°",
+        transmission_poor: "⚠ zayıf iletim  ·  μ_min = {val}°",
         locked: "MEKANİZMA KİLİTLENDİ"
       },
       en: {
@@ -1145,6 +1167,9 @@
         tier_gold: "Gold · perfect",
         tier_silver: "Silver · very good",
         tier_bronze: "Bronze · good",
+        transmission_good: "⚙ smooth transmission  ·  μ_min = {val}°",
+        transmission_ok: "⚙ adequate transmission  ·  μ_min = {val}°",
+        transmission_poor: "⚠ poor transmission  ·  μ_min = {val}°",
         locked: "MECHANISM LOCKED"
       }
     };
@@ -1281,6 +1306,25 @@
       if (pct >= 80) return 2;
       if (pct >= 70) return 1;
       return 0;
+    }
+
+    function computeTransmissionAngle(p) {
+      p = p || params;
+      let minAngle = Infinity;
+      for (let i = 0; i < 360; i++) {
+        const theta = (i / 360) * Math.PI * 2;
+        const sol = solve(theta, p);
+        if (!sol) continue;
+        const BAx = sol.Ax - sol.Bx, BAy = sol.Ay - sol.By;
+        const BCx = p.r1 - sol.Bx, BCy = -sol.By;
+        const dot = BAx * BCx + BAy * BCy;
+        const mag = Math.sqrt(BAx*BAx + BAy*BAy) * Math.sqrt(BCx*BCx + BCy*BCy);
+        if (mag < 0.001) continue;
+        let angle = Math.acos(Math.min(1, Math.max(-1, dot / mag))) * 180 / Math.PI;
+        if (angle > 90) angle = 180 - angle;
+        minAngle = Math.min(minAngle, angle);
+      }
+      return minAngle === Infinity ? null : Math.round(minAngle);
     }
 
     function renderStars(count) {
@@ -1574,6 +1618,19 @@
       else if (pct >= 80) { tier = t('tier_silver'); title = t('win_title_good'); }
       document.getElementById('win-tier').textContent = tier;
       document.getElementById('win-title').textContent = title;
+      const mu = computeTransmissionAngle();
+      const transEl = document.getElementById('win-transmission');
+      if (mu !== null) {
+        let tkey, tcls;
+        if (mu >= 45) { tkey = 'transmission_good'; tcls = 'good'; }
+        else if (mu >= 30) { tkey = 'transmission_ok'; tcls = 'ok'; }
+        else { tkey = 'transmission_poor'; tcls = 'poor'; }
+        transEl.textContent = t(tkey).replace('{val}', mu);
+        transEl.className = 'win-transmission ' + tcls;
+        transEl.style.display = '';
+      } else {
+        transEl.style.display = 'none';
+      }
       document.getElementById('win-modal').classList.add('show');
       updateLevelGrid();
       updateWonCount();
