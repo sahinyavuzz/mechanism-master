@@ -886,7 +886,17 @@
       .section-label { gap: 8px; align-items: flex-start; }
       .section-label .ref { white-space: nowrap; font-size: 8px; }
       .legend { right: 14px; gap: 8px; font-size: 8px; }
-      .match-display { left: 14px; bottom: 14px; padding: 8px 10px; gap: 8px; }
+      .match-display {
+        top: 14px;
+        right: 28px;
+        bottom: auto;
+        left: auto;
+        padding: 7px 9px;
+        gap: 7px;
+        font-size: 8px;
+      }
+      .match-display .value { font-size: 18px; }
+      .level-preview { display: none !important; }
       .coach-panel { grid-template-columns: 1fr auto; }
       .coach-step { grid-column: 1 / -1; }
       .tutorial-card, .win-card { width: calc(100vw - 40px); padding: 28px 24px 24px; }
@@ -1664,6 +1674,7 @@
     }
 
     function drawLevelPreview(i, e) {
+      if (window.matchMedia('(max-width: 520px), (pointer: coarse)').matches) return;
       const preview = document.getElementById('level-preview');
       const pcanvas = document.getElementById('preview-canvas');
       const pctx = pcanvas.getContext('2d');
